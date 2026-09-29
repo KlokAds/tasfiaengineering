@@ -50,6 +50,8 @@ class FrontendController extends Controller
             'homeStatic' => HomeStatic::first(),
             'services' => $this->withFromPrice($services),
             'allServicesCount' => $this->liveServices()->count(),
+            // Every live service for the quote form's "What do you need?" list (Admin → Services).
+            'serviceOptions' => $this->liveServices()->orderBy('name')->get(['id', 'name']),
             'categories' => ServiceCategory::where('is_active', true)->withCount(['services' => fn ($q) => $q->where('is_active', true)])->orderBy('sort_order')->get(['id', 'name', 'slug', 'intro']),
             'projects' => ProjectDetail::visible()->with('service:id,name,slug')->orderByDesc('completed_on')->latest()->take(6)->get(),
             'counters' => HomeCounter::all(['id', 'c_count', 'c_title', 'c_subtitle']),

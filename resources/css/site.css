@@ -150,6 +150,8 @@
     }
     .site .input::placeholder { color: var(--s-text-3); }
     .site .input:focus { outline: none; border-color: var(--s-accent); box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.18); }
+    /* Native dropdown list: readable in dark mode too. */
+    .site select.input option { background: var(--s-surface); color: var(--s-text); }
     .site select.input {
         appearance: none; padding-right: 2.25rem; cursor: pointer;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.2 7.2a.75.75 0 011.06.02L10 11.17l3.74-3.95a.75.75 0 111.08 1.04l-4.28 4.5a.75.75 0 01-1.08 0l-4.28-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");

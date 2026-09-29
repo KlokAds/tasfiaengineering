@@ -55,7 +55,7 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M7 3h7l5 5v12a1 1 0 01-1 1H7a2 2 0 01-2-2V5a2 2 0 012-2z" /></svg>
               </span>
             </div>
-            <QuoteForm :services="allServices" subject="Quote request · Homepage" id-prefix="hero" />
+            <QuoteForm :services="serviceOptions" subject="Quote request · Homepage" id-prefix="hero" />
           </div>
         </div>
       </div>
@@ -214,6 +214,7 @@ const props = defineProps({
   homeStatic: Object,
   services: { type: Array, default: () => [] },
   allServicesCount: Number,
+  serviceOptions: { type: Array, default: () => [] },
   categories: { type: Array, default: () => [] },
   projects: { type: Array, default: () => [] },
   counters: { type: Array, default: () => [] },
@@ -228,7 +229,6 @@ const page = usePage();
 const company = computed(() => page.props.company || {});
 const tel = computed(() => company.value.tel || '');
 const topLocations = computed(() => page.props.topLocations || []);
-const allServices = computed(() => (page.props.footerTopServices || []).map((s, i) => ({ id: i, name: s.name })));
 const isInternal = href => !href || href.startsWith('/');
 
 const texts = computed(() => page.props.company?.texts || {});
