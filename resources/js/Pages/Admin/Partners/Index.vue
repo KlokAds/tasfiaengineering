@@ -16,6 +16,7 @@
           </template>
           <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="pick" />
         </label>
+        <LibraryButton @pick="p => { form.image = p.file; previewUrl = p.url; }" />
         <p v-if="form.errors.image" class="a-error">{{ form.errors.image }}</p>
         <button type="submit" :disabled="form.processing || !form.image" class="admin-btn-primary w-full">{{ form.processing ? 'Uploading…' : 'Add logo' }}</button>
       </form>
@@ -46,6 +47,7 @@
 </template>
 
 <script setup>
+import LibraryButton from '@/Components/Admin/LibraryButton.vue';
 import BulkBar from '@/Components/Admin/BulkBar.vue';
 import { useBulk } from '@/Composables/useBulk';
 import { ref } from 'vue';

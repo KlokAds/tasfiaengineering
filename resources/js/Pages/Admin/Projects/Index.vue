@@ -109,6 +109,7 @@
               <span v-else class="text-xs px-3">Click to choose a real photo of the job</span>
               <input type="file" accept="image/*" :required="!editing" class="hidden" @change="pickImage" />
             </label>
+            <LibraryButton @pick="p => { form.image = p.file; preview = p.url; }" />
             <p v-if="form.errors.image" class="a-error">{{ form.errors.image }}</p>
             <label class="a-toggle-row">
               <span class="text-sm font-semibold">Visible</span>
@@ -127,6 +128,7 @@
 </template>
 
 <script setup>
+import LibraryButton from '@/Components/Admin/LibraryButton.vue';
 import BulkBar from '@/Components/Admin/BulkBar.vue';
 import { useBulk } from '@/Composables/useBulk';
 import StickyBar from '@/Components/Admin/StickyBar.vue';

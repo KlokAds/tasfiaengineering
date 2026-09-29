@@ -49,7 +49,10 @@
             </div>
           </div>
 
-          <div v-if="uploadFile || selected" class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t a-border">
+          <div v-if="mode === 'select' && (uploadFile || selected)" class="flex justify-end pt-2 border-t a-border">
+            <button type="button" @click="insert" :disabled="busy" class="admin-btn-primary">{{ busy ? 'Uploading…' : 'Use this image' }}</button>
+          </div>
+          <div v-else-if="uploadFile || selected" class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t a-border">
             <div class="sm:col-span-2">
               <label class="admin-label">Alt text * <span class="font-normal a-subtle">(describe the photo for Google and screen readers)</span></label>
               <input v-model="alt" type="text" maxlength="255" placeholder="e.g. Replaced water heater in a Tampines HDB bathroom" class="admin-input" />
@@ -71,8 +74,9 @@ import SelectBox from '@/Components/SelectBox.vue';
 import axios from 'axios';
 import { compressImage } from '@/Composables/compressImage';
 
-const props = defineProps({ show: Boolean });
-const emit = defineEmits(['close', 'insert']);
+// mode "insert" (editor: asks for alt text) or "select" (image fields: just pick a file)
+const props = defineProps({ show: Boolean, mode: { type: String, default: 'insert' } });
+const emit = defineEmits(['close', 'insert', 'select']);
 
 const tab = ref('library');
 const folders = ref([]);
@@ -161,7 +165,9 @@ function choose(img) {
 async function insert() {
   error.value = '';
   if (selected.value) {
-    emit('insert', { src: selected.value.url, alt: alt.value.trim() });
+    props.mode === 'select'
+      ? emit('select', { path: selected.value.path, url: selected.value.url })
+      : emit('insert', { src: selected.value.url, alt: alt.value.trim() });
     close();
     return;
   }
@@ -172,7 +178,9 @@ async function insert() {
     fd.append('alt', alt.value.trim());
     if (uploadFolder.value) fd.append('folder', uploadFolder.value);
     const { data } = await axios.post('/admin/media', fd, { headers: { Accept: 'application/json' } });
-    emit('insert', { src: data.files[0].url, alt: alt.value.trim() });
+    props.mode === 'select'
+      ? emit('select', { path: data.files[0].path, url: data.files[0].url })
+      : emit('insert', { src: data.files[0].url, alt: alt.value.trim() });
     library.value = [];
     close();
   } catch (e) {

@@ -77,6 +77,7 @@
                   <span v-else class="text-xs">Choose photo</span>
                   <input type="file" accept="image/*" class="hidden" :disabled="readOnly" @change="pickImage" />
                 </label>
+            <LibraryButton v-if="!readOnly" class="mt-1.5" @pick="p => { form.img = p.file; form.remove_img = false; preview = p.url; }" />
                 <div class="text-xs a-muted space-y-2">
                   <p>A real photo of your team at work, 1920×1080 or larger. It is darkened so the text stays readable.</p>
                   <button v-if="bgUrl && !readOnly" type="button" @click="clearImage" class="a-btn-ghost a-danger a-btn-sm">Remove photo</button>
@@ -134,6 +135,7 @@
 </template>
 
 <script setup>
+import LibraryButton from '@/Components/Admin/LibraryButton.vue';
 import { computed, ref } from 'vue';
 import { Link, router, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';

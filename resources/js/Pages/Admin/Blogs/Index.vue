@@ -255,6 +255,7 @@
                 <span v-else class="text-xs px-3">Click to choose a photo</span>
                 <input type="file" accept="image/jpeg,image/png,image/webp" @change="pickImage" class="hidden" />
               </label>
+              <LibraryButton class="mt-1.5" @pick="p => { form.image = p.file; preview = p.url; imageCheck = null; }" />
               <p v-if="form.errors.image" class="a-error">{{ form.errors.image }}</p>
               <p v-else-if="imageCheck" :class="['mt-1.5 text-xs', imageCheck.ok ? 'a-text-success' : 'a-text-warning']">{{ imageCheck.text }}</p>
               <ul class="mt-2 text-[11.5px] a-subtle space-y-0.5 leading-relaxed">
@@ -337,6 +338,7 @@
 </template>
 
 <script setup>
+import LibraryButton from '@/Components/Admin/LibraryButton.vue';
 import StickyBar from '@/Components/Admin/StickyBar.vue';
 import DatePicker from '@/Components/DatePicker.vue';
 import SelectBox from '@/Components/SelectBox.vue';

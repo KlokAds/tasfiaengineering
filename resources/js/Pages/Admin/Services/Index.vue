@@ -173,6 +173,7 @@
                 <span v-else class="text-xs">Click to choose an image</span>
                 <input type="file" accept="image/*" class="hidden" @change="e => pickImage(img.field, e)" />
               </label>
+              <LibraryButton class="mt-1.5" @pick="p => { form[img.field] = p.file; previews[img.field] = p.url; }" />
               <p v-if="form.errors[img.field]" class="a-error">{{ form.errors[img.field] }}</p>
             </div>
           </aside>
@@ -192,6 +193,7 @@
 </template>
 
 <script setup>
+import LibraryButton from '@/Components/Admin/LibraryButton.vue';
 import BulkBar from '@/Components/Admin/BulkBar.vue';
 import { useBulk } from '@/Composables/useBulk';
 import StickyBar from '@/Components/Admin/StickyBar.vue';

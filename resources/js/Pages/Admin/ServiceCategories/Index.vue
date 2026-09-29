@@ -84,6 +84,7 @@
           <div class="flex items-center gap-4">
             <img v-if="preview || editing?.image" :src="preview || '/' + editing.image" class="w-28 h-16 object-cover rounded-lg border a-border" alt="" />
             <input type="file" accept="image/*" @change="pickImage" />
+              <LibraryButton class="mt-1.5" @pick="p => { form.image = p.file; preview = p.url; }" />
           </div>
         </div>
 
@@ -105,6 +106,7 @@
 </template>
 
 <script setup>
+import LibraryButton from '@/Components/Admin/LibraryButton.vue';
 import BulkBar from '@/Components/Admin/BulkBar.vue';
 import { useBulk } from '@/Composables/useBulk';
 import { compressImage } from '@/Composables/compressImage';

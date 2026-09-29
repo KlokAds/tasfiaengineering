@@ -39,6 +39,7 @@
               <span v-else class="text-xs">Click to choose</span>
               <input type="file" accept="image/*" class="hidden" :disabled="readOnly" @change="e => pick(img.field, e)" />
             </label>
+            <LibraryButton v-if="!readOnly" class="mt-1.5" @pick="p => { form[img.field] = p.file; previews[img.field] = p.url; }" />
             <p v-if="img.help" class="a-help">{{ img.help }}</p>
           </div>
         </section>
@@ -50,6 +51,7 @@
 </template>
 
 <script setup>
+import LibraryButton from '@/Components/Admin/LibraryButton.vue';
 import { computed, reactive } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';

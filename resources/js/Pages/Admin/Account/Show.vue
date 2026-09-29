@@ -12,6 +12,7 @@
             Change photo
             <input type="file" accept="image/*" class="hidden" @change="pickImage" />
           </label>
+          <LibraryButton class="mt-1" label="Choose from library" @pick="p => { profileForm.image = p.file; preview = p.url; }" />
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -79,6 +80,7 @@
 </template>
 
 <script setup>
+import LibraryButton from '@/Components/Admin/LibraryButton.vue';
 import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';

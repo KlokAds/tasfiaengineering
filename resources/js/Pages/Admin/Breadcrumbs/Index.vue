@@ -24,6 +24,7 @@
           </label>
 
           <div class="p-4 space-y-2 flex-1">
+            <LibraryButton v-if="!readOnly" @pick="p => { form[b.image] = p.file; previews[b.image] = p.url; }" />
             <div class="flex items-center justify-between gap-3">
               <label class="admin-label !mb-0" :for="`bn-${b.key}`">Banner title (H1)</label>
               <a :href="b.path" target="_blank" class="text-[11px] a-mono a-subtle a-hover-text">{{ b.path }} ↗</a>
@@ -42,6 +43,7 @@
 </template>
 
 <script setup>
+import LibraryButton from '@/Components/Admin/LibraryButton.vue';
 import { computed, reactive } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';

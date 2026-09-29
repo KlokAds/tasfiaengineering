@@ -193,6 +193,7 @@
           <div>
             <label class="admin-label">Photo (optional)</label>
             <input type="file" accept="image/*" @change="pickImage" />
+              <LibraryButton class="mt-1.5" label="Choose photo from library" @pick="p => { form.img = p.file; }" />
           </div>
         </div>
         <label class="a-toggle-row">
@@ -210,6 +211,7 @@
 </template>
 
 <script setup>
+import LibraryButton from '@/Components/Admin/LibraryButton.vue';
 import BulkBar from '@/Components/Admin/BulkBar.vue';
 import { useBulk } from '@/Composables/useBulk';
 import DatePicker from '@/Components/DatePicker.vue';

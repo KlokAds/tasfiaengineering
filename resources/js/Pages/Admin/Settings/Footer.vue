@@ -12,6 +12,7 @@
               <img :src="previews[l.field] || (footer?.[l.field] ? '/' + footer[l.field] : '/logo.png')" alt="" class="max-h-20 max-w-[70%] object-contain" />
               <input type="file" accept="image/*" class="hidden" :disabled="readOnly" @change="e => pick(l.field, e)" />
             </label>
+            <LibraryButton v-if="!readOnly" class="mt-1.5" @pick="p => { form[l.field] = p.file; previews[l.field] = p.url; }" />
             <p class="a-help">{{ l.help }}</p>
           </div>
         </div>
@@ -95,6 +96,7 @@
 </template>
 
 <script setup>
+import LibraryButton from '@/Components/Admin/LibraryButton.vue';
 import { computed, reactive } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
