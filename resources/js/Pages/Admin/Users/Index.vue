@@ -11,9 +11,10 @@
     <div class="admin-card overflow-hidden">
       <div class="overflow-x-auto">
         <table class="a-table">
-          <thead><tr><th>Name</th><th>Role</th><th>Status</th><th class="text-center">Articles</th><th>Last sign-in</th><th></th></tr></thead>
+          <thead><tr><th class="w-10 !pr-0"><input type="checkbox" :checked="bulk.all.value" :indeterminate.prop="bulk.some.value" @change="bulk.toggleAll()" aria-label="Select all" /></th><th>Name</th><th>Role</th><th>Status</th><th class="text-center">Articles</th><th>Last sign-in</th><th></th></tr></thead>
           <tbody>
-            <tr v-for="u in pager.rows.value" :key="u.id">
+            <tr v-for="u in pager.rows.value" :key="u.id" :class="bulk.has(u.id) && 'a-row-selected'">
+              <td class="w-10 !pr-0"><input v-if="u.id !== me" type="checkbox" :checked="bulk.has(u.id)" @change="bulk.toggle(u.id)" aria-label="Select" /></td>
               <td>
                 <div class="flex items-center gap-3">
                   <Avatar :name="u.name" :image="u.image" size="sm" />
@@ -91,10 +92,13 @@
         </div>
       </form>
     </Modal>
+    <BulkBar :bulk="bulk" :can-delete="can('users.delete')" />
   </AdminLayout>
 </template>
 
 <script setup>
+import BulkBar from '@/Components/Admin/BulkBar.vue';
+import { useBulk } from '@/Composables/useBulk';
 import { computed, ref } from 'vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
@@ -143,4 +147,7 @@ async function remove(u) {
 
 // Long lists are paged (10–500 rows, choice remembered).
 const pager = usePaged(computed(() => props.users), 'users');
+
+// Select rows for bulk delete (confirm popup; each item follows the normal delete rules).
+const bulk = useBulk('users', () => pager.rows.value.filter(u => u.id !== me), { label: 'user' });
 </script>

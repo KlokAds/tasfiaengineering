@@ -97,7 +97,8 @@
           </div>
         </header>
         <ul v-if="reviews.length" class="a-divide">
-          <li v-for="r in pager.rows.value" :key="r.id" class="flex gap-4 px-5 py-4">
+          <li v-for="r in pager.rows.value" :key="r.id" :class="['flex gap-4 px-5 py-4', bulk.has(r.id) && 'a-row-selected']">
+            <input type="checkbox" class="mt-3 shrink-0" :checked="bulk.has(r.id)" @change="bulk.toggle(r.id)" aria-label="Select" />
             <img v-if="r.img" :src="'/' + r.img" alt="" class="w-10 h-10 rounded-full object-cover shrink-0" />
             <span v-else class="w-10 h-10 rounded-full a-inverse flex items-center justify-center text-sm font-bold shrink-0">{{ r.name.charAt(0) }}</span>
             <div class="min-w-0 flex-1">
@@ -204,10 +205,13 @@
         </div>
       </form>
     </Modal>
+    <BulkBar :bulk="bulk" :can-delete="can('reviews.delete')" />
   </AdminLayout>
 </template>
 
 <script setup>
+import BulkBar from '@/Components/Admin/BulkBar.vue';
+import { useBulk } from '@/Composables/useBulk';
 import DatePicker from '@/Components/DatePicker.vue';
 import SelectBox from '@/Components/SelectBox.vue';
 import { computed, ref } from 'vue';
@@ -281,4 +285,7 @@ async function remove(r) {
 
 // Long lists are paged (10–500 rows, choice remembered).
 const pager = usePaged(computed(() => props.reviews), 'reviews');
+
+// Select rows for bulk delete (confirm popup; each item follows the normal delete rules).
+const bulk = useBulk('reviews', () => pager.rows.value, { label: 'review' });
 </script>

@@ -33,7 +33,8 @@
         <table class="a-table">
           <thead>
             <tr>
-              <th>Service</th>
+              <th class="w-10 !pr-0"><input type="checkbox" :checked="bulk.all.value" :indeterminate.prop="bulk.some.value" @change="bulk.toggleAll()" aria-label="Select all" /></th>
+            <th>Service</th>
               <th>Category</th>
               <th class="text-center">Words</th>
               <th class="text-center">Prices</th>
@@ -44,7 +45,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="s in pager.rows.value" :key="s.id">
+            <tr v-for="s in pager.rows.value" :key="s.id" :class="bulk.has(s.id) && 'a-row-selected'">
+              <td class="w-10 !pr-0"><input type="checkbox" :checked="bulk.has(s.id)" @change="bulk.toggle(s.id)" :aria-label="`Select`" /></td>
               <td>
                 <div class="flex items-center gap-3">
                   <img :src="s.image ? '/' + s.image : '/logo.png'" alt="" class="w-12 h-9 rounded-md object-cover a-panel-3 shrink-0" />
@@ -185,10 +187,13 @@
         </div>
       </form>
     </Modal>
+    <BulkBar :bulk="bulk" :can-delete="can('services.delete')" />
   </AdminLayout>
 </template>
 
 <script setup>
+import BulkBar from '@/Components/Admin/BulkBar.vue';
+import { useBulk } from '@/Composables/useBulk';
 import StickyBar from '@/Components/Admin/StickyBar.vue';
 import SelectBox from '@/Components/SelectBox.vue';
 import { computed, onMounted, reactive, ref } from 'vue';
@@ -330,4 +335,7 @@ onMounted(() => {
 
 // Long lists are paged (10–500 rows, choice remembered).
 const pager = usePaged(computed(() => filtered.value), 'services');
+
+// Select rows for bulk delete (confirm popup; each item follows the normal delete rules).
+const bulk = useBulk('services', () => pager.rows.value, { label: 'service' });
 </script>

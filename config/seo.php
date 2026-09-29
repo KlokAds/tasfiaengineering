@@ -20,6 +20,7 @@ return [
                 'business.founded_year' => ['label' => 'Year founded', 'type' => 'text', 'default' => '', 'help' => 'Used in the footer copyright (e.g. © 2016–2026) and as foundingDate in the schema.'],
                 'business.founded_year' => ['label' => 'Year founded', 'type' => 'text', 'default' => '', 'help' => 'Used in the footer copyright (e.g. © 2016–2026) and as foundingDate in the schema.'],
                 'business.founded_year' => ['label' => 'Year founded', 'type' => 'text', 'default' => '', 'help' => 'Used in the footer copyright (e.g. © 2016–2026) and as foundingDate in the schema.'],
+                'business.founded_year' => ['label' => 'Year founded', 'type' => 'text', 'default' => '', 'help' => 'Used in the footer copyright (e.g. © 2016–2026) and as foundingDate in the schema.'],
                 'business.schema_type' => ['label' => 'Business type (schema)', 'type' => 'select', 'default' => 'HomeAndConstructionBusiness', 'options' => [
                     'HomeAndConstructionBusiness', 'GeneralContractor', 'Plumber', 'Electrician', 'HVACBusiness', 'LocalBusiness',
                 ]],

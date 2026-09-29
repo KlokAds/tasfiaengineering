@@ -102,6 +102,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware\EnsureUserIsActive::class])->group(function () {
     Route::get('/', fn () => redirect()->route('admin.dashboard'));
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Bulk delete for every list (each item uses that list's own delete rules and permission).
+    Route::post('/bulk/{resource}/delete', [\App\Http\Controllers\Admin\BulkController::class, 'destroy'])->middleware('throttle:20,1')->name('bulk.delete');
     Route::get('/checklist', [DashboardController::class, 'checklist'])->middleware('can:settings.view')->name('checklist');
 
     // My account, notifications and autosave: every signed-in user

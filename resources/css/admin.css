@@ -351,6 +351,9 @@
     .admin-ui .modal-body .sticky.bottom-0 { bottom: -1.5rem !important; z-index: 20; }
     .admin-ui .modal-body .sticky.top-0 { top: -1.5rem !important; }
 
+    /* ---------- Selected rows (bulk actions) ---------- */
+    .admin-ui .a-row-selected > td, .admin-ui li.a-row-selected, .admin-ui .a-row-selected { background: var(--a-accent-soft); }
+
     /* ---------- StickyBar: compact copy of stat cards / tabs / filters ---------- */
     .admin-ui .sticky-compact > * { margin-top: 0 !important; margin-bottom: 0 !important; }
     .admin-ui .sticky-compact .grid { gap: 0.5rem !important; }

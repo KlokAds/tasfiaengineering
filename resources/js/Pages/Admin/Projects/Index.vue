@@ -27,10 +27,11 @@
     </StickyBar>
 
     <div v-if="projects.data.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      <article v-for="p in projects.data" :key="p.id" class="admin-card overflow-hidden flex flex-col group">
+      <article v-for="p in projects.data" :key="p.id" :class="['admin-card overflow-hidden flex flex-col group', bulk.has(p.id) && 'ring-2 ring-[var(--a-accent)]']">
         <div class="aspect-[4/3] a-panel-3 relative overflow-hidden">
           <img :src="p.image ? '/' + p.image : '/logo.png'" :alt="p.name" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300" loading="lazy" />
-          <span v-if="!p.is_active" class="a-badge absolute top-2 left-2">Hidden</span>
+          <label class="absolute top-2 left-2 rounded-md p-1 cursor-pointer z-[1]" style="background: var(--a-panel)" title="Select"><input type="checkbox" class="block" :checked="bulk.has(p.id)" @change="bulk.toggle(p.id)" /></label>
+          <span v-if="!p.is_active" class="a-badge absolute top-2 left-10">Hidden</span>
           <span v-if="p.video" class="a-badge absolute top-2 right-2">Video</span>
         </div>
         <div class="p-4 flex-1">
@@ -121,10 +122,13 @@
         </div>
       </form>
     </Modal>
+    <BulkBar :bulk="bulk" :can-delete="can('projects.delete')" />
   </AdminLayout>
 </template>
 
 <script setup>
+import BulkBar from '@/Components/Admin/BulkBar.vue';
+import { useBulk } from '@/Composables/useBulk';
 import StickyBar from '@/Components/Admin/StickyBar.vue';
 import DatePicker from '@/Components/DatePicker.vue';
 import SelectBox from '@/Components/SelectBox.vue';
@@ -188,4 +192,7 @@ async function remove(p) {
     router.delete(`/admin/projects/${p.id}`, { preserveScroll: true });
   }
 }
+
+// Select rows for bulk delete (confirm popup; each item follows the normal delete rules).
+const bulk = useBulk('projects', () => props.projects.data, { label: 'project' });
 </script>

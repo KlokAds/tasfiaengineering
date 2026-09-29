@@ -18,9 +18,10 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <article v-for="c in pager.rows.value" :key="c.id" class="admin-card p-5 flex flex-col">
+      <article v-for="c in pager.rows.value" :key="c.id" :class="['admin-card p-5 flex flex-col', bulk.has(c.id) && 'ring-2 ring-[var(--a-accent)]']">
         <div class="flex items-start justify-between gap-3">
           <div class="flex items-center gap-3 min-w-0">
+            <input type="checkbox" class="shrink-0" :checked="bulk.has(c.id)" @change="bulk.toggle(c.id)" aria-label="Select" />
             <img v-if="c.image" :src="'/' + c.image" alt="" class="w-12 h-12 rounded-lg object-cover shrink-0" />
             <div class="min-w-0">
               <h3 class="font-bold truncate">{{ c.name }} <span v-if="!c.is_active" class="a-badge ml-1">Hidden</span></h3>
@@ -99,10 +100,13 @@
         </div>
       </form>
     </Modal>
+    <BulkBar :bulk="bulk" :can-delete="can('categories.delete')" />
   </AdminLayout>
 </template>
 
 <script setup>
+import BulkBar from '@/Components/Admin/BulkBar.vue';
+import { useBulk } from '@/Composables/useBulk';
 import { compressImage } from '@/Composables/compressImage';
 import { confirmDialog } from '@/Composables/useConfirm';
 import { computed, onMounted, ref } from 'vue';
@@ -177,4 +181,7 @@ onMounted(() => {
 
 // Long lists are paged (10–500 rows, choice remembered).
 const pager = usePaged(computed(() => props.categories), 'categories');
+
+// Select rows for bulk delete (confirm popup; each item follows the normal delete rules).
+const bulk = useBulk('service-categories', () => pager.rows.value, { label: 'category', plural: 'categories' });
 </script>

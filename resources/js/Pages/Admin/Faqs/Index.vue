@@ -20,7 +20,8 @@
 
     <div class="admin-card overflow-hidden">
       <ul v-if="faqs.data.length" class="a-divide">
-        <li v-for="f in faqs.data" :key="f.id" class="px-5 py-4 flex items-start justify-between gap-4 a-hover">
+        <li v-for="f in faqs.data" :key="f.id" :class="['px-5 py-4 flex items-start justify-between gap-4 a-hover', bulk.has(f.id) && 'a-row-selected']">
+          <input type="checkbox" class="mt-1 shrink-0" :checked="bulk.has(f.id)" @change="bulk.toggle(f.id)" aria-label="Select" />
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-1.5 mb-1">
               <span class="a-badge">{{ f.scope_label }}</span>
@@ -86,10 +87,13 @@
         </div>
       </form>
     </Modal>
+    <BulkBar :bulk="bulk" :can-delete="can('faqs.delete')" />
   </AdminLayout>
 </template>
 
 <script setup>
+import BulkBar from '@/Components/Admin/BulkBar.vue';
+import { useBulk } from '@/Composables/useBulk';
 import SelectBox from '@/Components/SelectBox.vue';
 import { confirmDialog } from '@/Composables/useConfirm';
 import { computed, ref } from 'vue';
@@ -147,4 +151,7 @@ function save() {
 async function remove(f) {
   if (await confirmDialog({ title: 'Delete this FAQ?', message: f.question, confirmText: 'Delete FAQ' })) router.delete(`/admin/faqs/${f.id}`, { preserveScroll: true });
 }
+
+// Select rows for bulk delete (confirm popup; each item follows the normal delete rules).
+const bulk = useBulk('faqs', () => props.faqs.data, { label: 'FAQ' });
 </script>

@@ -49,6 +49,7 @@ class SiteSchema
             'foundingDate' => preg_match('/^(19|20)\d{2}$/', (string) ($s['business.founded_year'] ?? '')) ? $s['business.founded_year'] : null,
             'foundingDate' => preg_match('/^(19|20)\d{2}$/', (string) ($s['business.founded_year'] ?? '')) ? $s['business.founded_year'] : null,
             'foundingDate' => preg_match('/^(19|20)\d{2}$/', (string) ($s['business.founded_year'] ?? '')) ? $s['business.founded_year'] : null,
+            'foundingDate' => preg_match('/^(19|20)\d{2}$/', (string) ($s['business.founded_year'] ?? '')) ? $s['business.founded_year'] : null,
             'identifier' => $s['business.uen'] ? ['@type' => 'PropertyValue', 'propertyID' => 'UEN', 'value' => $s['business.uen']] : null,
         ]);
 

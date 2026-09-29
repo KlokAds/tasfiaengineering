@@ -25,7 +25,8 @@
           <h3 class="a-card-title">On the homepage <span class="a-subtle font-medium">{{ partners.length }}</span></h3>
         </header>
         <div v-if="partners.length" class="p-4 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
-          <div v-for="item in partners" :key="item.id" class="rounded-xl border a-border overflow-hidden flex flex-col">
+          <div v-for="item in partners" :key="item.id" :class="['relative rounded-xl border overflow-hidden flex flex-col', bulk.has(item.id) ? 'border-[var(--a-accent)]' : 'a-border']">
+          <label class="absolute top-2 left-2 rounded-md p-1 cursor-pointer z-[1]" style="background: var(--a-panel)" title="Select"><input type="checkbox" class="block" :checked="bulk.has(item.id)" @change="bulk.toggle(item.id)" /></label>
             <div class="bg-white h-24 flex items-center justify-center p-4">
               <img :src="'/' + item.image" alt="" class="max-h-full max-w-full object-contain" />
             </div>
@@ -40,10 +41,13 @@
         </div>
       </section>
     </div>
+    <BulkBar :bulk="bulk" :can-delete="can('homepage.edit')" />
   </AdminLayout>
 </template>
 
 <script setup>
+import BulkBar from '@/Components/Admin/BulkBar.vue';
+import { useBulk } from '@/Composables/useBulk';
 import { ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
@@ -51,7 +55,7 @@ import PageHeader from '@/Components/Admin/PageHeader.vue';
 import { confirmDialog } from '@/Composables/useConfirm';
 import { usePermissions } from '@/Composables/usePermissions';
 
-defineProps({ partners: Array });
+const props = defineProps({ partners: Array });
 const { can } = usePermissions();
 
 const previewUrl = ref(null);
@@ -81,4 +85,7 @@ async function remove(item) {
     router.delete(`/admin/partners/${item.id}`, { preserveScroll: true });
   }
 }
+
+// Select rows for bulk delete (confirm popup; each item follows the normal delete rules).
+const bulk = useBulk('partners', () => props.partners, { label: 'logo' });
 </script>

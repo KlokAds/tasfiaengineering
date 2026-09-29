@@ -82,7 +82,8 @@
           <option value="">Link to service…</option>
           <option v-for="s in services" :key="s.id" :value="s.id">{{ s.name }}</option>
         </SelectBox>
-        <button @click="bulkAssign" :disabled="!bulkService" class="admin-btn-primary a-btn-sm">Assign</button>
+        <button v-if="permissions.edit_all" @click="bulkAssign" :disabled="!bulkService" class="admin-btn-primary a-btn-sm">Assign</button>
+        <button v-if="permissions.delete" @click="bulkDelete" class="a-btn-danger a-btn-sm">Delete selected</button>
         <button @click="selected = []" class="a-btn-ghost a-btn-sm ml-auto">Clear</button>
       </div>
 
@@ -90,7 +91,7 @@
         <table class="a-table">
           <thead>
             <tr>
-              <th v-if="permissions.edit_all" class="w-8"><input type="checkbox" :checked="allSelected" @change="toggleAll" class="rounded" /></th>
+              <th v-if="permissions.edit_all || permissions.delete" class="w-8"><input type="checkbox" :checked="allSelected" @change="toggleAll" class="rounded" /></th>
               <th>Article</th>
               <th>Status</th>
               <th>Author</th>
@@ -102,7 +103,7 @@
           </thead>
           <tbody>
             <tr v-for="b in blogs.data" :key="b.id">
-              <td v-if="permissions.edit_all"><input v-model="selected" type="checkbox" :value="b.id" class="rounded" /></td>
+              <td v-if="permissions.edit_all || permissions.delete"><input v-model="selected" type="checkbox" :value="b.id" class="rounded" /></td>
               <td class="max-w-md">
                 <button @click="openModal(b)" class="font-semibold text-left line-clamp-1 hover:underline">{{ b.name }}</button>
                 <p class="text-xs a-subtle font-mono truncate">{{ b.public_path }}<span v-if="b.noindex" class="ml-2 a-text-warning font-sans font-semibold">noindex</span></p>
@@ -446,6 +447,11 @@ const selected = ref([]);
 const bulkService = ref('');
 const allSelected = computed(() => props.blogs.data.length > 0 && props.blogs.data.every(b => selected.value.includes(b.id)));
 function toggleAll() { selected.value = allSelected.value ? [] : props.blogs.data.map(b => b.id); }
+async function bulkDelete() {
+  const n = selected.value.length;
+  const ok = await confirmDialog({ title: `Delete ${n} article${n === 1 ? '' : 's'}?`, message: 'Deleted articles return "410 gone" to Google. This cannot be undone.', confirmText: `Delete ${n}`, tone: 'danger' });
+  if (ok) router.post('/admin/bulk/blogs/delete', { ids: selected.value }, { preserveScroll: true, onSuccess: () => { selected.value = []; } });
+}
 function bulkAssign() {
   router.post('/admin/blogs-bulk/assign-service', { ids: selected.value, service_id: bulkService.value }, {
     preserveScroll: true,

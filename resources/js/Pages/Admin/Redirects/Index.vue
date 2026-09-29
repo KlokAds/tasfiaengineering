@@ -39,6 +39,7 @@
             <table class="a-table">
               <thead>
                 <tr>
+                  <th class="w-10 !pr-0"><input type="checkbox" :checked="bulk.all.value" :indeterminate.prop="bulk.some.value" @change="bulk.toggleAll()" aria-label="Select all" /></th>
                   <th>Old URL</th>
                   <th>Goes to</th>
                   <th>Type</th>
@@ -48,7 +49,8 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="r in redirects.data" :key="r.id" :class="!r.is_active && 'opacity-50'">
+                <tr v-for="r in redirects.data" :key="r.id" :class="[!r.is_active && 'opacity-50', bulk.has(r.id) && 'a-row-selected']">
+                  <td class="w-10 !pr-0"><input type="checkbox" :checked="bulk.has(r.id)" @change="bulk.toggle(r.id)" :aria-label="`Select`" /></td>
                   <td class="font-mono text-xs a-text break-all max-w-xs">{{ r.from_path }}</td>
                   <td class="font-mono text-xs break-all max-w-xs">
                     <span v-if="r.code === 410" class="a-subtle">— removed —</span>
@@ -179,10 +181,13 @@
         </div>
       </form>
     </Modal>
+    <BulkBar :bulk="bulk" :can-delete="can('redirects.delete')" />
   </AdminLayout>
 </template>
 
 <script setup>
+import BulkBar from '@/Components/Admin/BulkBar.vue';
+import { useBulk } from '@/Composables/useBulk';
 import StickyBar from '@/Components/Admin/StickyBar.vue';
 import SelectBox from '@/Components/SelectBox.vue';
 import { confirmDialog } from '@/Composables/useConfirm';
@@ -258,4 +263,7 @@ const importForm = useForm({ file: null });
 function importCsv() {
   importForm.post('/admin/redirects/import', { forceFormData: true, preserveScroll: true, onSuccess: () => importForm.reset() });
 }
+
+// Select rows for bulk delete (confirm popup; each item follows the normal delete rules).
+const bulk = useBulk('redirects', () => props.redirects.data, { label: 'redirect' });
 </script>

@@ -31,7 +31,8 @@
         <div class="overflow-x-auto">
           <table class="a-table">
             <tbody>
-              <tr v-for="p in group.items" :key="p.id">
+              <tr v-for="p in group.items" :key="p.id" :class="bulk.has(p.id) && 'a-row-selected'">
+                <td class="w-10 !pr-0"><input type="checkbox" :checked="bulk.has(p.id)" @change="bulk.toggle(p.id)" :aria-label="`Select`" /></td>
                 <td>
                   <span class="font-medium">{{ p.item }}</span>
                   <span v-if="p.is_featured" class="a-badge a-badge-success ml-2">Featured</span>
@@ -105,10 +106,13 @@
         </div>
       </form>
     </Modal>
+    <BulkBar :bulk="bulk" :can-delete="can('pricing.delete')" />
   </AdminLayout>
 </template>
 
 <script setup>
+import BulkBar from '@/Components/Admin/BulkBar.vue';
+import { useBulk } from '@/Composables/useBulk';
 import SelectBox from '@/Components/SelectBox.vue';
 import { confirmDialog } from '@/Composables/useConfirm';
 import { computed, ref } from 'vue';
@@ -181,4 +185,7 @@ async function remove(p) {
 
 // Long lists are paged (10–500 rows, choice remembered).
 const pager = usePaged(computed(() => grouped.value), 'pricing');
+
+// Select rows for bulk delete (confirm popup; each item follows the normal delete rules).
+const bulk = useBulk('pricing', () => pager.rows.value.flatMap(g => g.items), { label: 'price' });
 </script>

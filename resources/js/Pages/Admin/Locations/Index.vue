@@ -23,10 +23,11 @@
       <div v-else class="overflow-x-auto">
         <table class="a-table">
           <thead>
-            <tr><th>Area</th><th>Region</th><th>Property types</th><th class="text-center">Services</th><th class="text-center">Words</th><th class="text-center">FAQs</th><th>SEO</th><th></th></tr>
+            <tr><th class="w-10 !pr-0"><input type="checkbox" :checked="bulk.all.value" :indeterminate.prop="bulk.some.value" @change="bulk.toggleAll()" aria-label="Select all" /></th><th>Area</th><th>Region</th><th>Property types</th><th class="text-center">Services</th><th class="text-center">Words</th><th class="text-center">FAQs</th><th>SEO</th><th></th></tr>
           </thead>
           <tbody>
-            <tr v-for="l in pager.rows.value" :key="l.id">
+            <tr v-for="l in pager.rows.value" :key="l.id" :class="bulk.has(l.id) && 'a-row-selected'">
+              <td class="w-10 !pr-0"><input type="checkbox" :checked="bulk.has(l.id)" @change="bulk.toggle(l.id)" :aria-label="`Select`" /></td>
               <td>
                 <button @click="openModal(l)" class="font-semibold hover:underline">{{ l.name }}</button>
                 <span v-if="l.is_featured" class="a-badge a-badge-success ml-1.5">In menu</span>
@@ -155,10 +156,13 @@
         </div>
       </form>
     </Modal>
+    <BulkBar :bulk="bulk" :can-delete="can('locations.delete')" />
   </AdminLayout>
 </template>
 
 <script setup>
+import BulkBar from '@/Components/Admin/BulkBar.vue';
+import { useBulk } from '@/Composables/useBulk';
 import SelectBox from '@/Components/SelectBox.vue';
 import { compressImage } from '@/Composables/compressImage';
 import { confirmDialog } from '@/Composables/useConfirm';
@@ -249,4 +253,7 @@ onMounted(() => {
 
 // Long lists are paged (10–500 rows, choice remembered).
 const pager = usePaged(computed(() => props.locations), 'locations');
+
+// Select rows for bulk delete (confirm popup; each item follows the normal delete rules).
+const bulk = useBulk('locations', () => pager.rows.value, { label: 'area page' });
 </script>

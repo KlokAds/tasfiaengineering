@@ -16,7 +16,8 @@
       <!-- List -->
       <section class="admin-card overflow-hidden">
         <ul v-if="messages.data?.length" class="a-divide max-h-[70vh] overflow-y-auto a-scroll">
-          <li v-for="msg in messages.data" :key="msg.id">
+          <li v-for="msg in messages.data" :key="msg.id" :class="['flex items-stretch', bulk.has(msg.id) && 'a-row-selected']">
+            <label v-if="can('enquiries.delete')" class="pl-3 flex items-start pt-4 cursor-pointer" title="Select"><input type="checkbox" :checked="bulk.has(msg.id)" @change="bulk.toggle(msg.id)" aria-label="Select" /></label>
             <button @click="openMessage(msg)" :class="['w-full text-left px-4 py-3.5 flex gap-3 transition', selected?.id === msg.id ? 'a-tint-accent' : 'a-hover']">
               <span :class="['mt-1.5 a-dot', msg.is_read == 0 ? 'text-[var(--a-accent)]' : 'opacity-0']"></span>
               <span class="min-w-0 flex-1">
@@ -77,10 +78,13 @@
         </div>
       </section>
     </div>
+    <BulkBar :bulk="bulk" :can-delete="can('enquiries.delete')" />
   </AdminLayout>
 </template>
 
 <script setup>
+import BulkBar from '@/Components/Admin/BulkBar.vue';
+import { useBulk } from '@/Composables/useBulk';
 import { computed, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
@@ -129,4 +133,6 @@ const shortDate = d => {
     : date.toLocaleDateString('en-SG', { day: 'numeric', month: 'short' });
 };
 const longDate = d => new Date(d).toLocaleString('en-SG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+const bulk = useBulk('messages', () => props.messages.data, { label: 'enquiry', plural: 'enquiries' });
 </script>
