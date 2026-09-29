@@ -42,11 +42,7 @@
               <button @click="check" :disabled="checking || running" class="admin-btn-secondary">{{ checking ? 'Checking…' : 'Check for updates' }}</button>
               <button @click="startMigrate" :disabled="running" class="admin-btn-secondary" title="Only run new database changes (no code download)">Run migrations</button>
               <button @click="connecting = false; mode = 'update'; confirmOpen = true" :disabled="running" class="admin-btn-primary">{{ running ? 'Updating…' : 'Update now' }}</button>
-              <span v-if="checkResult?.ok" class="text-sm" :class="checkResult.behind ? 'a-text-success font-semibold' : 'a-muted'">
-                {{ checkResult.behind ? `${checkResult.behind} new change(s) available` : 'Already up to date' }}
-                <span v-if="checkResult.ahead" class="a-text-warning"> · server has {{ checkResult.ahead }} commit(s) not on GitHub</span>
-              </span>
-              <span v-if="checkError" class="text-sm a-text-danger">{{ checkError }}</span>
+              <span v-if="checkResult?.ok" :class="['a-badge', checkResult.behind ? 'a-badge-success' : '']">{{ checkResult.behind ? `${checkResult.behind} update(s) ready` : 'Up to date' }}</span>
             </div>
 
             <ul v-if="checkResult?.incoming?.length" class="mt-4 border a-border rounded-xl a-divide">
@@ -163,6 +159,7 @@
 import { nextTick, onBeforeUnmount, ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import axios from 'axios';
+import { toast } from '@/Composables/useToast';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import PageHeader from '@/Components/Admin/PageHeader.vue';
 import Modal from '@/Components/Admin/Modal.vue';
@@ -206,8 +203,14 @@ async function check() {
   checkError.value = '';
   try {
     checkResult.value = (await axios.post('/admin/system/update/check')).data;
+    const r = checkResult.value;
+    r.behind
+      ? toast.success(`${r.behind} new update${r.behind > 1 ? 's are' : ' is'} ready on GitHub. Click "Update now" to install.`)
+      : toast.info('Already up to date. The site runs the latest version from GitHub.');
+    if (r.ahead) toast.info(`This server has ${r.ahead} change(s) that are not on GitHub.`);
   } catch (e) {
     checkError.value = e.response?.data?.message || 'Check failed.';
+    toast.error(`Could not check for updates: ${checkError.value}`);
   } finally {
     checking.value = false;
   }
@@ -255,9 +258,14 @@ async function deploy() {
     const { data } = await axios.post('/admin/system/update/deploy', { password: password.value, action: mode.value });
     confirmOpen.value = false;
     password.value = '';
-    await fetchLatest(data.id);
+    const log = await fetchLatest(data.id);
+    const what = mode.value === 'connect' ? 'Connection to GitHub' : mode.value === 'migrate' ? 'Database update' : 'Update';
+    log?.status === 'success'
+      ? toast.success(`${what} finished${log.commit_after ? ` (version ${log.commit_after})` : ''}. Reload the page to see the new version.`)
+      : toast.error(`${what} stopped at a step that failed. The log below shows why.`);
   } catch (e) {
     deployError.value = e.response?.data?.errors?.password?.[0] || e.response?.data?.message || 'Update could not start.';
+    if (!e.response?.data?.errors?.password) toast.error(deployError.value);
     if (e.response?.status === 422 || e.response?.status === 409) liveLog.value = null;
   } finally {
     running.value = false;

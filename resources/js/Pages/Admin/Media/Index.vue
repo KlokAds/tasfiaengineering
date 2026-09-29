@@ -32,7 +32,7 @@
     </div>
     </StickyBar>
 
-    <p v-if="uploadError" class="a-alert a-alert-danger mb-4">{{ uploadError }}</p>
+
 
     <div class="grid grid-cols-1 lg:grid-cols-[16rem_1fr] gap-5 items-start">
       <!-- Folder tree -->
@@ -243,6 +243,7 @@ import { confirmDialog } from '@/Composables/useConfirm';
 import { computed, ref, watch } from 'vue';
 import { Link, router, useForm } from '@inertiajs/vue3';
 import axios from 'axios';
+import { toast } from '@/Composables/useToast';
 import { compressImage } from '@/Composables/compressImage';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Modal from '@/Components/Admin/Modal.vue';
@@ -367,10 +368,11 @@ async function downloadZip(payload) {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 5000);
+    toast.success(`Download started: ${name}`);
   } catch (err) {
     let msg = 'Download failed.';
     try { msg = JSON.parse(await err.response?.data?.text?.())?.message || msg; } catch (e) { /* not JSON */ }
-    uploadError.value = [401, 419].includes(err.response?.status) ? 'Your session has expired. Reload the page and sign in again.' : msg;
+    toast.error([401, 419].includes(err.response?.status) ? 'Your session has expired. Reload the page and sign in again.' : msg);
   } finally {
     zipping.value = false;
   }
@@ -420,11 +422,14 @@ async function upload(e) {
   for (const file of list) fd.append('files[]', await compressImage(file));
   if (currentFolder.value) fd.append('folder', currentFolder.value);
   try {
-    await axios.post('/admin/media', fd, { headers: { Accept: 'application/json' } });
+    const { data } = await axios.post('/admin/media', fd, { headers: { Accept: 'application/json' } });
+    const n = data?.files?.length || list.length;
+    toast.success(`${n} file${n === 1 ? '' : 's'} uploaded${currentFolder.value ? ` to ${currentFolder.value.split('/').pop()}` : ''}.`);
     router.reload({ preserveScroll: true });
   } catch (err) {
-    if ([401, 419].includes(err.response?.status)) { uploadError.value = 'Your session has expired. Reload the page and sign in again, then upload.'; return; }
+    if ([401, 419].includes(err.response?.status)) { toast.error('Your session has expired. Reload the page and sign in again, then upload.'); return; }
     uploadError.value = err.response?.data?.errors ? Object.values(err.response.data.errors).flat()[0] : (err.response?.data?.message || 'Upload failed.');
+    toast.error(uploadError.value);
   } finally {
     uploading.value = false;
     e.target.value = '';

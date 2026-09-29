@@ -179,9 +179,10 @@
     <!-- Just under the top bar, right side; errors stay until closed, success fades after a few seconds -->
     <div class="fixed top-[4.75rem] right-4 z-[90] space-y-2 w-[min(92vw,26rem)]" aria-live="polite">
       <transition-group enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 -translate-y-2" leave-active-class="transition duration-150" leave-to-class="opacity-0 translate-x-4">
-        <div v-for="t in toasts" :key="t.id" :class="['admin-card flex items-start gap-3 px-4 py-3 border-l-4', t.type === 'error' ? '!border-l-[var(--a-danger)]' : '!border-l-[var(--a-success)]']" style="box-shadow: var(--a-shadow-lg)" :role="t.type === 'error' ? 'alert' : 'status'">
-          <span :class="['w-7 h-7 rounded-full flex items-center justify-center shrink-0', t.type === 'error' ? 'a-tint-danger a-text-danger' : 'a-tint-success a-text-success']">
-            <svg v-if="t.type === 'error'" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v5m0 3h.01" /></svg>
+        <div v-for="t in toasts" :key="t.id" :class="['admin-card flex items-start gap-3 px-4 py-3 border-l-4', t.type === 'error' ? '!border-l-[var(--a-danger)]' : t.type === 'info' ? '!border-l-[var(--a-info)]' : '!border-l-[var(--a-success)]']" style="box-shadow: var(--a-shadow-lg)" :role="t.type === 'error' ? 'alert' : 'status'">
+          <span :class="['w-7 h-7 rounded-full flex items-center justify-center shrink-0', t.type === 'error' ? 'a-tint-danger a-text-danger' : t.type === 'info' ? 'a-tint-info a-text-info' : 'a-tint-success a-text-success']">
+            <svg v-if="t.type === 'info'" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-4m0-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <svg v-else-if="t.type === 'error'" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v5m0 3h.01" /></svg>
             <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
           </span>
           <p class="text-sm flex-1 whitespace-pre-line pt-1">{{ t.message }}</p>
@@ -200,6 +201,7 @@ import { Link, router, usePage } from '@inertiajs/vue3';
 import ConfirmDialog from '@/Components/Admin/ConfirmDialog.vue';
 import Avatar from '@/Components/Admin/Avatar.vue';
 import { confirmDialog } from '@/Composables/useConfirm';
+import { useToast } from '@/Composables/useToast';
 
 defineProps({ title: { type: String, default: 'Dashboard' } });
 
@@ -390,17 +392,8 @@ async function quickClear() {
 }
 
 // ---------- Toasts ----------
-const toasts = ref([]);
-let toastId = 0;
-function pushToast(type, message) {
-  if (!message) return;
-  const id = ++toastId;
-  toasts.value.push({ id, type, message });
-  setTimeout(() => dismiss(id), type === 'error' ? 9000 : 5000);
-}
-function dismiss(id) {
-  toasts.value = toasts.value.filter(t => t.id !== id);
-}
+// Shared with every page through useToast(), so axios actions show the same toasts as saved forms.
+const { toasts, push: pushToast, dismiss } = useToast();
 watch(() => page.props.flash, (flash) => {
   pushToast('success', flash?.success);
   pushToast('error', flash?.error);

@@ -88,6 +88,7 @@
     .admin-ui .a-tint-warning { background: var(--a-warning-soft); }
     .admin-ui .a-tint-danger { background: var(--a-danger-soft); }
     .admin-ui .a-tint-info { background: var(--a-info-soft); }
+    .admin-ui .a-text-info { color: var(--a-info-text); }
     .admin-ui .a-tint-accent { background: var(--a-accent-soft); }
     .admin-ui .a-text-success { color: var(--a-success-text); }
     .admin-ui .a-text-warning { color: var(--a-warning-text); }
