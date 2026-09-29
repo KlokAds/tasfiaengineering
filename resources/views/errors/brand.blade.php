@@ -32,9 +32,11 @@
         .secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
         form.search { display: flex; gap: 8px; margin: 26px auto 0; max-width: 420px; }
         form.search input { flex: 1; min-width: 0; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 14px; }
-        .links { margin-top: 28px; display: flex; gap: 8px 18px; justify-content: center; flex-wrap: wrap; font-size: 14px; }
-        .links a { color: var(--muted); text-decoration: none; }
-        .links a:hover { color: var(--text); text-decoration: underline; }
+        .popular { margin-top: 30px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+        .links { margin-top: 12px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+        .links a { display: inline-flex; align-items: center; gap: 6px; color: var(--text); background: var(--card); border: 1px solid var(--border);
+            padding: 9px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; text-decoration: none; transition: border-color .15s, color .15s; }
+        .links a:hover { border-color: var(--accent); color: var(--accent); }
         footer { text-align: center; font-size: 12.5px; color: var(--muted); padding: 18px; }
         footer a { color: var(--muted); }
     </style>
@@ -61,6 +63,7 @@
                     <input type="search" name="q" placeholder="Search services and guides…" aria-label="Search the website">
                     <button class="btn secondary" type="submit">Search</button>
                 </form>
+                <p class="popular">Popular pages</p>
                 <div class="links">
                     <a href="{{ url('/services') }}">Services</a>
                     <a href="{{ url('/pricing') }}">Price list</a>

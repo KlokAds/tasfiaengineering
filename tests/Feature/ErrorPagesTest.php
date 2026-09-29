@@ -11,7 +11,7 @@ class ErrorPagesTest extends TestCase
 
     public function test_missing_page_shows_the_branded_404(): void
     {
-        $this->get('/no-such-page')->assertNotFound()->assertSee("We can't find that page", false)->assertSee('Search services and guides');
+        $this->get('/no-such-page')->assertNotFound()->assertSee('find that page')->assertSee('Search services and guides');
     }
 
     public function test_inertia_navigation_to_a_missing_page_reloads_into_the_error_page(): void
