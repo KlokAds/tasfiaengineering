@@ -97,6 +97,7 @@ class HandleInertiaRequests extends Middleware
                 ->mapWithKeys(fn ($p) => [$p => $request->user()->can($p)])
                 ->all(),
             'brand' => \App\Models\SiteSetting::get('business.brand_name') ?: config('app.name'),
+            'debug' => (bool) config('app.debug'),
             'role' => (function () use ($request) {
                 $name = $request->user()->getRoleNames()->first();
                 return $name ? (config("admin.roles.{$name}.label") ?? $name) : null;

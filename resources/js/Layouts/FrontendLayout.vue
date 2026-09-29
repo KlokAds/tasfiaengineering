@@ -313,7 +313,7 @@
 
     <!-- Toast -->
     <transition enter-active-class="transition duration-200" enter-from-class="opacity-0 translate-y-2" leave-active-class="transition duration-150" leave-to-class="opacity-0">
-      <div v-if="toast" class="fixed z-50 bottom-24 lg:bottom-24 right-5 left-5 sm:left-auto sm:w-96 card p-4 flex gap-3" style="box-shadow: var(--s-shadow-lg)" role="status">
+      <div v-if="toast" class="fixed z-50 top-24 right-5 left-5 sm:left-auto sm:w-96 card p-4 flex gap-3" style="box-shadow: var(--s-shadow-lg)" role="status">
         <span :class="['w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-white', toast.type === 'error' ? 'bg-[#dc2626]' : 'bg-[#16a34a]']">{{ toast.type === 'error' ? '!' : '✓' }}</span>
         <p class="text-sm s-text pt-1.5 flex-1">{{ toast.message }}</p>
         <button @click="toast = null" class="s-subtle text-sm" aria-label="Close">✕</button>

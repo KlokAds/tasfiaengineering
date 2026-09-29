@@ -4,14 +4,21 @@
       <div class="admin-card w-full max-w-4xl my-8 shadow-2xl">
         <div class="flex items-center justify-between px-6 pt-5 pb-3 border-b a-border">
           <div class="flex gap-1.5">
-            <button type="button" @click="tab = 'upload'" :class="tabClass('upload')">Upload new</button>
             <button type="button" @click="openLibrary" :class="tabClass('library')">Media library</button>
+            <button type="button" @click="tab = 'upload'" :class="tabClass('upload')">Upload new</button>
           </div>
           <button type="button" @click="close" class="p-2 rounded-lg a-subtle hover:text-[var(--a-text-2)]" aria-label="Close">✕</button>
         </div>
 
         <div class="p-6 space-y-4">
           <div v-if="tab === 'upload'" class="space-y-4">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs font-semibold a-muted">Save to folder</span>
+              <SelectBox v-model="uploadFolder" class="admin-input !w-72 max-w-full">
+                <option value="">Default (Media / this month)</option>
+                <option v-for="f in folders" :key="f" :value="f">{{ folderLabel(f) }}</option>
+              </SelectBox>
+            </div>
             <label class="flex flex-col items-center justify-center gap-2 border-2 border-dashed a-border-2 rounded-xl p-8 cursor-pointer hover:border-[var(--a-border-2)] transition"
               @dragover.prevent @drop.prevent="e => pickFile(e.dataTransfer.files[0])">
               <img v-if="uploadPreview" :src="uploadPreview" class="max-h-48 rounded-lg" alt="" />
@@ -22,7 +29,14 @@
           </div>
 
           <div v-else class="space-y-3">
-            <input v-model="search" @input="debouncedLoad" type="text" placeholder="Search file names..." class="admin-input" />
+            <div class="flex flex-col sm:flex-row gap-2">
+              <SelectBox v-model="folder" class="admin-input sm:!w-72" @change="load(true)">
+                <option value="">All folders</option>
+                <option v-for="f in folders" :key="f" :value="f">{{ folderLabel(f) }}</option>
+              </SelectBox>
+              <input v-model="search" @input="debouncedLoad" type="text" placeholder="Search file names…" class="admin-input flex-1" />
+            </div>
+            <p v-if="!loading && !library.length" class="text-sm a-muted py-8 text-center">No images in this folder yet. Upload them in <a href="/admin/media" target="_blank" class="a-accent font-semibold">Media library</a> or use “Upload new”.</p>
             <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-[22rem] overflow-y-auto">
               <button v-for="img in library" :key="img.path" type="button" @click="choose(img)"
                 :class="['relative aspect-square rounded-lg overflow-hidden border-2 a-panel-2 ', selected?.path === img.path ? 'border-amber-500' : 'border-transparent hover:border-[var(--a-border-2)]']">
@@ -53,13 +67,18 @@
 
 <script setup>
 import { ref, watch } from 'vue';
+import SelectBox from '@/Components/SelectBox.vue';
 import axios from 'axios';
 import { compressImage } from '@/Composables/compressImage';
 
 const props = defineProps({ show: Boolean });
 const emit = defineEmits(['close', 'insert']);
 
-const tab = ref('upload');
+const tab = ref('library');
+const folders = ref([]);
+const folder = ref('');
+const uploadFolder = ref('');
+const folderLabel = (path) => path.split('/').map((p, i) => (i === 0 ? 'Uploads' : p)).join(' / ');
 const alt = ref('');
 const error = ref('');
 const busy = ref(false);
@@ -79,7 +98,8 @@ watch(() => props.show, (open) => {
 });
 
 function reset() {
-  tab.value = 'upload';
+  tab.value = 'library';
+  if (!library.value.length) load(true);
   alt.value = '';
   error.value = '';
   uploadFile.value = null;
@@ -105,9 +125,12 @@ async function load(reset = true) {
   loading.value = true;
   if (reset) page.value = 1;
   try {
-    const { data } = await axios.get('/admin/media/browse', { params: { search: search.value, page: page.value } });
+    const { data } = await axios.get('/admin/media/browse', { params: { search: search.value, page: page.value, folder: folder.value } });
     library.value = reset ? data.data : [...library.value, ...data.data];
     hasMore.value = data.has_more;
+    if (data.folders) folders.value = data.folders;
+  } catch (e) {
+    error.value = sessionMessage(e) || 'Could not load the media library.';
   } finally {
     loading.value = false;
   }
@@ -147,15 +170,23 @@ async function insert() {
     const fd = new FormData();
     fd.append('files[]', await compressImage(uploadFile.value));
     fd.append('alt', alt.value.trim());
+    if (uploadFolder.value) fd.append('folder', uploadFolder.value);
     const { data } = await axios.post('/admin/media', fd, { headers: { Accept: 'application/json' } });
     emit('insert', { src: data.files[0].url, alt: alt.value.trim() });
     library.value = [];
     close();
   } catch (e) {
-    error.value = e.response?.data?.errors ? Object.values(e.response.data.errors).flat()[0] : (e.response?.data?.message || 'Upload failed. Check your connection and try again.');
+    error.value = sessionMessage(e) || (e.response?.data?.errors ? Object.values(e.response.data.errors).flat()[0] : (e.response?.data?.message || 'Upload failed. Check your connection and try again.'));
   } finally {
     busy.value = false;
   }
+}
+
+// 401/419 = signed out or the page was open too long: say so plainly instead of "Unauthenticated".
+function sessionMessage(e) {
+  return [401, 419].includes(e?.response?.status)
+    ? 'You have been signed out (session expired). Save your text somewhere, reload the page and sign in again.'
+    : '';
 }
 
 function close() {

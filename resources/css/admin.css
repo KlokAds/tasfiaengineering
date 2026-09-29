@@ -276,7 +276,7 @@
 
     /* Segmented control (view switchers, theme) */
     .admin-ui .a-seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 10px; background: var(--a-panel-3); border: 1px solid var(--a-border); }
-    .admin-ui .a-seg > * { padding: 0.35rem 0.7rem; border-radius: 7px; font-size: 0.78rem; font-weight: 600; color: var(--a-text-2); }
+    .admin-ui .a-seg > * { white-space: nowrap; padding: 0.35rem 0.7rem; border-radius: 7px; font-size: 0.78rem; font-weight: 600; color: var(--a-text-2); }
     .admin-ui .a-seg > *:hover { color: var(--a-text); }
     .admin-ui .a-seg > .is-on { background: var(--a-panel); color: var(--a-text); box-shadow: var(--a-shadow-sm); }
 

@@ -176,9 +176,10 @@
     </div>
 
     <!-- ============ Toasts ============ -->
-    <div class="fixed bottom-4 right-4 z-[90] space-y-2 w-[min(92vw,26rem)]">
-      <transition-group enter-active-class="transition duration-200" enter-from-class="opacity-0 translate-y-2" leave-active-class="transition duration-150" leave-to-class="opacity-0">
-        <div v-for="t in toasts" :key="t.id" class="admin-card flex items-start gap-3 px-4 py-3" style="box-shadow: var(--a-shadow-lg)">
+    <!-- Just under the top bar, right side; errors stay until closed, success fades after a few seconds -->
+    <div class="fixed top-[4.75rem] right-4 z-[90] space-y-2 w-[min(92vw,26rem)]" aria-live="polite">
+      <transition-group enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 -translate-y-2" leave-active-class="transition duration-150" leave-to-class="opacity-0 translate-x-4">
+        <div v-for="t in toasts" :key="t.id" :class="['admin-card flex items-start gap-3 px-4 py-3 border-l-4', t.type === 'error' ? '!border-l-[var(--a-danger)]' : '!border-l-[var(--a-success)]']" style="box-shadow: var(--a-shadow-lg)" :role="t.type === 'error' ? 'alert' : 'status'">
           <span :class="['w-7 h-7 rounded-full flex items-center justify-center shrink-0', t.type === 'error' ? 'a-tint-danger a-text-danger' : 'a-tint-success a-text-success']">
             <svg v-if="t.type === 'error'" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v5m0 3h.01" /></svg>
             <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
@@ -404,6 +405,32 @@ watch(() => page.props.flash, (flash) => {
   pushToast('success', flash?.success);
   pushToast('error', flash?.error);
 }, { immediate: true });
+
+// Every problem gets a clear message instead of a blank or technical screen.
+const statusMessage = (status) => ({
+  401: 'You have been signed out. Reload the page and sign in again.',
+  403: 'Your role does not allow this. Ask the Super Admin for access.',
+  404: 'That item no longer exists. It may have been deleted by someone else.',
+  413: 'The file is too large for the server. Use a smaller photo.',
+  419: 'This page was open too long and expired. Reload the page and try again; your autosaved text is kept.',
+  429: 'Too many tries in a short time. Wait a minute and try again.',
+}[status] || (status >= 500 ? `Something went wrong on the server (error ${status}). Try again; if it keeps happening, turn on Debug mode under System → Site status and send the message to your developer.` : `The request failed (error ${status}).`));
+const offInvalid = router.on('invalid', (event) => {
+  const status = event.detail.response?.status;
+  // With debug on (developers), keep Laravel's detailed error screen for server errors.
+  if (status >= 500 && admin.value?.debug) return;
+  event.preventDefault();
+  pushToast('error', statusMessage(status));
+});
+const offException = router.on('exception', (event) => {
+  event.preventDefault();
+  pushToast('error', 'No connection to the server. Check your internet and try again.');
+});
+const offError = router.on('error', (event) => {
+  const first = Object.values(event.detail.errors || {})[0];
+  if (first) pushToast('error', `Please check the form: ${first}`);
+});
+onBeforeUnmount(() => { offInvalid(); offException(); offError(); });
 
 onMounted(() => {
   try { theme.value = localStorage.getItem('tasfia_admin_theme') || 'system'; } catch (e) { theme.value = 'system'; }

@@ -203,6 +203,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware
     Route::post('/media', [MediaController::class, 'store'])->middleware(['can:media.create', 'throttle:60,1'])->name('media.store');
     Route::post('/media/alt', [MediaController::class, 'updateAlt'])->middleware('can:media.edit')->name('media.alt');
     Route::post('/media/delete', [MediaController::class, 'destroy'])->middleware('can:media.delete')->name('media.destroy');
+    Route::post('/media/folders', [MediaController::class, 'createFolder'])->middleware('can:media.create')->name('media.folders.create');
+    Route::post('/media/folders/rename', [MediaController::class, 'renameFolder'])->middleware('can:media.edit')->name('media.folders.rename');
+    Route::post('/media/folders/delete', [MediaController::class, 'deleteFolder'])->middleware('can:media.delete')->name('media.folders.delete');
+    Route::post('/media/transfer', [MediaController::class, 'transfer'])->middleware('can:media.view')->name('media.transfer');
 
     // ---------------- SEO ----------------
     Route::get('/seo/health', [SeoHealthController::class, 'index'])->middleware('can:seo_health.view')->name('seo.health');

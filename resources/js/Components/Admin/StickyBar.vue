@@ -33,9 +33,10 @@ onMounted(() => {
   const tabs = document.querySelector('[data-admin-tabs]');
   const slim = document.querySelector('[data-page-slim]');
   top.value = 64 + (tabs ? Math.round(tabs.getBoundingClientRect().height) : 0) + (slim ? 48 : 0);
+  // Only once the original has fully gone under the bars, so the two never show together.
   observer = new IntersectionObserver(([e]) => {
-    stuck.value = e.boundingClientRect.top < top.value && e.intersectionRatio < 1;
-  }, { rootMargin: `-${top.value}px 0px 0px 0px`, threshold: [0, 1] });
+    stuck.value = !e.isIntersecting && e.boundingClientRect.top < top.value;
+  }, { rootMargin: `-${top.value}px 0px 0px 0px`, threshold: 0 });
   observer.observe(el.value);
 });
 onBeforeUnmount(() => observer?.disconnect());

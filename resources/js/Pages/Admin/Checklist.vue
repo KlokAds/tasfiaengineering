@@ -29,7 +29,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-[15rem_1fr] gap-5 items-start">
       <!-- Groups -->
-      <nav class="admin-card p-2 lg:sticky lg:top-20" aria-label="Checklist sections">
+      <nav class="admin-card p-2 lg:sticky lg:top-[8.75rem]" aria-label="Checklist sections">
         <button type="button" :class="['a-nav-item w-full', !group && 'is-active']" @click="group = ''">
           <span class="flex-1 text-left">All sections</span>
           <span class="text-[11px] a-subtle tabular-nums">{{ done }}/{{ total }}</span>
@@ -45,8 +45,8 @@
       </nav>
 
       <!-- Items -->
-      <section class="admin-card overflow-hidden">
-        <header class="a-card-head">
+      <section class="admin-card">
+        <header class="a-card-head lg:sticky lg:top-[8.75rem] z-10 rounded-t-[inherit]" style="background: var(--a-panel)">
           <div>
             <h3 class="a-card-title">{{ group || 'All sections' }}</h3>
             <p class="a-card-sub">{{ rows.length }} {{ statusLabel }}</p>

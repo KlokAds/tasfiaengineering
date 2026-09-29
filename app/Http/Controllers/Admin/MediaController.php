@@ -48,7 +48,8 @@ class MediaController extends Controller
             'missing' => count(array_diff_key($usage, $files)),
         ];
 
-        $folders = $all->pluck('folder')->unique()->sort()->values();
+        $counts = $all->countBy('folder');
+        $folders = collect(MediaLibrary::folders())->map(fn ($f) => ['path' => $f, 'name' => basename($f), 'depth' => substr_count($f, '/'), 'count' => $counts[$f] ?? 0])->values();
 
         $filtered = $all
             ->when($request->input('status') === 'used', fn ($c) => $c->where('usage_count', '>', 0))
@@ -69,14 +70,17 @@ class MediaController extends Controller
             'summary' => $summary,
             'folders' => $folders,
             'filters' => $request->only(['status', 'folder', 'search', 'sort', 'per_page']),
+            'uploadFolder' => MediaLibrary::UPLOAD_DIR,
         ]);
     }
 
     /** JSON list of images for the editor's image picker. */
     public function browse(Request $request)
     {
+        $folder = MediaLibrary::cleanFolder($request->input('folder'));
         $files = collect(MediaLibrary::scan())
             ->filter(fn ($info, $path) => in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), MediaLibrary::IMAGE_EXTENSIONS, true))
+            ->when($folder, fn ($c) => $c->filter(fn ($i, $path) => dirname($path) === $folder))
             ->when($request->filled('search'), fn ($c) => $c->filter(fn ($i, $path) => stripos(basename($path), $request->input('search')) !== false))
             ->sortByDesc(fn ($info) => $info[1]);
 
@@ -92,6 +96,7 @@ class MediaController extends Controller
                 'alt' => $meta[$path] ?? null,
             ])->values(),
             'has_more' => $files->count() > $page * 40,
+            'folders' => $page === 1 ? MediaLibrary::folders() : null,
         ]);
     }
 
@@ -101,6 +106,7 @@ class MediaController extends Controller
             'files' => 'required|array|max:20',
             'files.*' => 'file|max:8192|mimes:' . implode(',', MediaLibrary::ALLOWED_EXTENSIONS),
             'alt' => 'nullable|string|max:255',
+            'folder' => 'nullable|string|max:300',
         ], [
             'files.*.uploaded' => 'The file is larger than this server accepts (' . ini_get('upload_max_filesize') . '). Resize it, or raise upload_max_filesize in php.ini.',
             'files.*.max' => 'Files must be 8 MB or smaller.',
@@ -109,7 +115,7 @@ class MediaController extends Controller
 
         $stored = [];
         foreach ($request->file('files') as $file) {
-            $media = MediaLibrary::store($file, $request->user()->id, $request->input('alt'));
+            $media = MediaLibrary::store($file, $request->user()->id, $request->input('alt'), $request->input('folder'));
             $stored[] = [
                 'path' => $media->path,
                 'url' => '/' . implode('/', array_map('rawurlencode', explode('/', $media->path))),
@@ -139,6 +145,57 @@ class MediaController extends Controller
         Media::updateOrCreate(['path' => $path], ['alt' => $data['alt']]);
 
         return redirect()->back()->with('success', 'Alt text saved.');
+    }
+
+    public function createFolder(Request $request)
+    {
+        $data = $request->validate(['parent' => 'required|string|max:300', 'name' => 'required|string|max:60']);
+
+        return $this->run(fn () => MediaLibrary::createFolder($data['parent'], $data['name']), fn ($f) => ['success' => "Folder \"" . basename($f) . "\" created.", 'folder' => $f]);
+    }
+
+    public function renameFolder(Request $request)
+    {
+        $data = $request->validate(['path' => 'required|string|max:300', 'name' => 'required|string|max:60']);
+
+        return $this->run(fn () => MediaLibrary::renameFolder($data['path'], $data['name']), fn ($f) => ['success' => 'Folder renamed. Pages using its images were updated.', 'folder' => $f]);
+    }
+
+    public function deleteFolder(Request $request)
+    {
+        $data = $request->validate(['path' => 'required|string|max:300']);
+
+        return $this->run(fn () => MediaLibrary::deleteFolder($data['path']), fn () => ['success' => 'Folder deleted.', 'folder' => dirname(MediaLibrary::cleanFolder($data['path']) ?: 'Admin/x')]);
+    }
+
+    public function transfer(Request $request)
+    {
+        $data = $request->validate([
+            'paths' => 'required|array|min:1|max:500',
+            'paths.*' => 'string|max:512',
+            'to' => 'required|string|max:300',
+            'mode' => 'required|in:move,copy',
+        ]);
+        abort_unless($request->user()->can($data['mode'] === 'move' ? 'media.edit' : 'media.create'), 403);
+
+        return $this->run(fn () => $data['mode'] === 'move' ? MediaLibrary::move($data['paths'], $data['to']) : MediaLibrary::copy($data['paths'], $data['to']),
+            fn ($r) => ['success' => ($data['mode'] === 'move' ? "{$r['moved']} file(s) moved" : "{$r['moved']} file(s) copied") . ($data['mode'] === 'move' ? '; pages that use them were updated.' : '.') . ($r['skipped'] ? " {$r['skipped']} skipped." : '')]);
+    }
+
+    /** Runs a folder/file action and turns friendly errors into a flash message. */
+    private function run(callable $action, callable $message)
+    {
+        try {
+            $result = $action();
+        } catch (\InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+        Cache::forget(self::USAGE_CACHE);
+        $m = $message($result);
+
+        return isset($m['folder'])
+            ? redirect()->route('admin.media.index', ['folder' => $m['folder']])->with('success', $m['success'])
+            : back()->with('success', $m['success']);
     }
 
     public function destroy(Request $request)
