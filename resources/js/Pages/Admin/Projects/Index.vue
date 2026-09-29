@@ -26,6 +26,7 @@
     </div>
     </StickyBar>
 
+    <BulkSelectAll v-if="can('projects.delete') && projects.data.length" :bulk="bulk" :padded="false" class="mb-3" />
     <div v-if="projects.data.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       <article v-for="p in projects.data" :key="p.id" :class="['admin-card overflow-hidden flex flex-col group', bulk.has(p.id) && 'ring-2 ring-[var(--a-accent)]']">
         <div class="aspect-[4/3] a-panel-3 relative overflow-hidden">
@@ -128,6 +129,7 @@
 </template>
 
 <script setup>
+import BulkSelectAll from '@/Components/Admin/BulkSelectAll.vue';
 import LibraryButton from '@/Components/Admin/LibraryButton.vue';
 import BulkBar from '@/Components/Admin/BulkBar.vue';
 import { useBulk } from '@/Composables/useBulk';

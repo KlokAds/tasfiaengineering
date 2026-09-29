@@ -15,6 +15,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,26rem)_1fr] gap-4 items-start">
       <!-- List -->
       <section class="admin-card overflow-hidden">
+        <BulkSelectAll v-if="can('enquiries.delete') && messages.data?.length" :bulk="bulk" />
         <ul v-if="messages.data?.length" class="a-divide max-h-[70vh] overflow-y-auto a-scroll">
           <li v-for="msg in messages.data" :key="msg.id" :class="['flex items-stretch', bulk.has(msg.id) && 'a-row-selected']">
             <label v-if="can('enquiries.delete')" class="pl-3 flex items-start pt-4 cursor-pointer" title="Select"><input type="checkbox" :checked="bulk.has(msg.id)" @change="bulk.toggle(msg.id)" aria-label="Select" /></label>
@@ -83,6 +84,7 @@
 </template>
 
 <script setup>
+import BulkSelectAll from '@/Components/Admin/BulkSelectAll.vue';
 import BulkBar from '@/Components/Admin/BulkBar.vue';
 import { useBulk } from '@/Composables/useBulk';
 import { computed, ref } from 'vue';

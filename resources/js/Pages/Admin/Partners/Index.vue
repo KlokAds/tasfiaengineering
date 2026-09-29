@@ -25,6 +25,7 @@
         <header class="a-card-head">
           <h3 class="a-card-title">On the homepage <span class="a-subtle font-medium">{{ partners.length }}</span></h3>
         </header>
+        <BulkSelectAll v-if="can('homepage.edit') && partners.length" :bulk="bulk" />
         <div v-if="partners.length" class="p-4 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
           <div v-for="item in partners" :key="item.id" :class="['relative rounded-xl border overflow-hidden flex flex-col', bulk.has(item.id) ? 'border-[var(--a-accent)]' : 'a-border']">
           <label class="absolute top-2 left-2 rounded-md p-1 cursor-pointer z-[1]" style="background: var(--a-panel)" title="Select"><input type="checkbox" class="block" :checked="bulk.has(item.id)" @change="bulk.toggle(item.id)" /></label>
@@ -47,6 +48,7 @@
 </template>
 
 <script setup>
+import BulkSelectAll from '@/Components/Admin/BulkSelectAll.vue';
 import LibraryButton from '@/Components/Admin/LibraryButton.vue';
 import BulkBar from '@/Components/Admin/BulkBar.vue';
 import { useBulk } from '@/Composables/useBulk';

@@ -22,6 +22,7 @@
       <p class="text-sm a-muted mt-1">Add 3–5 real price ranges per service, e.g. “Water heater replacement: S$250 – S$450 / unit”.</p>
     </div>
 
+    <BulkSelectAll v-if="can('pricing.delete') && pager.rows.value.length" :bulk="bulk" :padded="false" class="mb-3" hint="prices on this page" />
     <div class="space-y-4">
       <section v-for="group in pager.rows.value" :key="group.service.id" class="admin-card overflow-hidden">
         <header class="a-card-head !py-3">
@@ -111,6 +112,7 @@
 </template>
 
 <script setup>
+import BulkSelectAll from '@/Components/Admin/BulkSelectAll.vue';
 import BulkBar from '@/Components/Admin/BulkBar.vue';
 import { useBulk } from '@/Composables/useBulk';
 import SelectBox from '@/Components/SelectBox.vue';

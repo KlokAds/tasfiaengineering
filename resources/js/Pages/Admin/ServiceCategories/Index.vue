@@ -17,6 +17,7 @@
       <p class="text-sm a-muted mt-1">Start with 4–6 broad groups that match how customers search.</p>
     </div>
 
+    <BulkSelectAll v-if="can('categories.delete') && categories.length" :bulk="bulk" :padded="false" class="mb-3" />
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <article v-for="c in pager.rows.value" :key="c.id" :class="['admin-card p-5 flex flex-col', bulk.has(c.id) && 'ring-2 ring-[var(--a-accent)]']">
         <div class="flex items-start justify-between gap-3">
@@ -106,6 +107,7 @@
 </template>
 
 <script setup>
+import BulkSelectAll from '@/Components/Admin/BulkSelectAll.vue';
 import LibraryButton from '@/Components/Admin/LibraryButton.vue';
 import BulkBar from '@/Components/Admin/BulkBar.vue';
 import { useBulk } from '@/Composables/useBulk';

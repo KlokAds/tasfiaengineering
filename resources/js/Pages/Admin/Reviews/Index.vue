@@ -96,6 +96,7 @@
             <p class="a-card-sub">Only add real reviews you can show proof of (message, email, signed form).</p>
           </div>
         </header>
+        <BulkSelectAll v-if="can('reviews.delete') && reviews.length" :bulk="bulk" />
         <ul v-if="reviews.length" class="a-divide">
           <li v-for="r in pager.rows.value" :key="r.id" :class="['flex gap-4 px-5 py-4', bulk.has(r.id) && 'a-row-selected']">
             <input type="checkbox" class="mt-3 shrink-0" :checked="bulk.has(r.id)" @change="bulk.toggle(r.id)" aria-label="Select" />
@@ -211,6 +212,7 @@
 </template>
 
 <script setup>
+import BulkSelectAll from '@/Components/Admin/BulkSelectAll.vue';
 import LibraryButton from '@/Components/Admin/LibraryButton.vue';
 import BulkBar from '@/Components/Admin/BulkBar.vue';
 import { useBulk } from '@/Composables/useBulk';

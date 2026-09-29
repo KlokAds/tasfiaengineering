@@ -19,6 +19,7 @@
     </div>
 
     <div class="admin-card overflow-hidden">
+      <BulkSelectAll v-if="can('faqs.delete') && faqs.data.length" :bulk="bulk" />
       <ul v-if="faqs.data.length" class="a-divide">
         <li v-for="f in faqs.data" :key="f.id" :class="['px-5 py-4 flex items-start justify-between gap-4 a-hover', bulk.has(f.id) && 'a-row-selected']">
           <input type="checkbox" class="mt-1 shrink-0" :checked="bulk.has(f.id)" @change="bulk.toggle(f.id)" aria-label="Select" />
@@ -92,6 +93,7 @@
 </template>
 
 <script setup>
+import BulkSelectAll from '@/Components/Admin/BulkSelectAll.vue';
 import BulkBar from '@/Components/Admin/BulkBar.vue';
 import { useBulk } from '@/Composables/useBulk';
 import SelectBox from '@/Components/SelectBox.vue';
