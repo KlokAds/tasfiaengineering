@@ -158,13 +158,23 @@
                 <svg :class="['w-4 h-4 s-subtle transition-transform', mobileSection === 'services' && 'rotate-180']" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
               </button>
               <div v-if="mobileSection === 'services'" class="border-t s-border s-bg-alt">
-                <template v-for="group in serviceCategories" :key="group.name">
-                  <p v-if="serviceCategories.length > 1" class="px-4 pt-4 pb-1 text-[11px] font-bold uppercase tracking-[0.1em] s-subtle">{{ group.name }}</p>
-                  <Link v-for="s in group.services" :key="s.href" :href="s.href" class="flex items-center justify-between px-4 py-2.5 text-[14.5px] s-text border-b s-border last:border-b-0" @click="mobileOpen = false">
-                    {{ s.name }} <span class="s-subtle" aria-hidden="true">›</span>
-                  </Link>
-                </template>
-                <div class="p-3 grid grid-cols-2 gap-2">
+                <!-- Long lists scroll inside a short box, so the menu stays compact -->
+                <div v-if="serviceCount > 8" class="px-3 pt-3">
+                  <input v-model="mobileServiceQuery" type="search" class="input !py-2 !text-[14px]" :placeholder="`Find a service (${serviceCount})`" aria-label="Find a service" />
+                </div>
+                <div class="relative">
+                  <div class="max-h-[17rem] overflow-y-auto overscroll-contain pb-2">
+                    <template v-for="group in mobileServiceGroups" :key="group.name">
+                      <p v-if="mobileServiceGroups.length > 1" class="sticky top-0 z-[1] px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-[0.1em] s-subtle s-bg-alt">{{ group.name }}</p>
+                      <Link v-for="s in group.services" :key="s.href" :href="s.href" class="flex items-center justify-between px-4 py-2.5 text-[14.5px] s-text border-b s-border last:border-b-0" @click="mobileOpen = false">
+                        {{ s.name }} <span class="s-subtle" aria-hidden="true">›</span>
+                      </Link>
+                    </template>
+                    <p v-if="!mobileServiceGroups.length" class="px-4 py-4 text-[14px] s-muted">No service matches “{{ mobileServiceQuery }}”.</p>
+                  </div>
+                  <div v-if="serviceCount > 6" class="pointer-events-none absolute inset-x-0 bottom-0 h-8" style="background: linear-gradient(to bottom, transparent, var(--s-bg-alt))"></div>
+                </div>
+                <div class="p-3 grid grid-cols-2 gap-2 border-t s-border">
                   <Link href="/services" class="btn btn-secondary btn-sm" @click="mobileOpen = false">All services</Link>
                   <Link href="/pricing" class="btn btn-secondary btn-sm" @click="mobileOpen = false">Price list</Link>
                 </div>
@@ -366,6 +376,14 @@ const open = ref(null);
 const mobileOpen = ref(false);
 const mobileSection = ref(null);
 const serviceCount = computed(() => serviceCategories.value.reduce((n, g) => n + g.services.length, 0));
+// Mobile menu: filter the service list by name.
+const mobileServiceQuery = ref('');
+const mobileServiceGroups = computed(() => {
+  const q = mobileServiceQuery.value.trim().toLowerCase();
+  return serviceCategories.value
+    .map((g) => ({ ...g, services: q ? g.services.filter((s) => s.name.toLowerCase().includes(q)) : g.services }))
+    .filter((g) => g.services.length);
+});
 let closeTimer = null;
 // A short delay lets the pointer travel from the menu button into the panel.
 const openMenu = name => { clearTimeout(closeTimer); open.value = name; };
