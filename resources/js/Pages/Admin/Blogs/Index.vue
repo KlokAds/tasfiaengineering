@@ -62,24 +62,24 @@
       <!-- Filters -->
       <form @submit.prevent="go({ search: filterForm.search, page: '' })" class="flex flex-col lg:flex-row gap-2 p-4 border-b a-border">
         <input v-model="filterForm.search" type="search" placeholder="Search titles…" class="admin-input lg:max-w-xs" />
-        <select v-model="filterForm.filter" @change="go({ filter: filterForm.filter, page: '' })" class="admin-input lg:max-w-[16rem]">
+        <SelectBox v-model="filterForm.filter" @change="go({ filter: filterForm.filter, page: '' })" class="admin-input lg:max-w-[16rem]">
           <option value="">Any SEO state</option>
           <option v-for="(label, key) in filterOptions" :key="key" :value="key">{{ label }}</option>
-        </select>
-        <select v-model="filterForm.service" @change="go({ service: filterForm.service, page: '' })" class="admin-input lg:max-w-[16rem]">
+        </SelectBox>
+        <SelectBox v-model="filterForm.service" @change="go({ service: filterForm.service, page: '' })" class="admin-input lg:max-w-[16rem]">
           <option value="">Any service</option>
           <option v-for="s in services" :key="s.id" :value="s.id">{{ s.name }}</option>
-        </select>
+        </SelectBox>
         <button type="submit" class="admin-btn-secondary">Search</button>
       </form>
 
       <!-- Bulk -->
       <div v-if="selected.length" class="flex flex-wrap items-center gap-3 px-4 py-2.5 border-b a-border" style="background: var(--a-accent-soft)">
         <span class="text-sm font-semibold">{{ selected.length }} selected</span>
-        <select v-model="bulkService" class="admin-input !w-auto !py-1.5 text-sm">
+        <SelectBox v-model="bulkService" class="admin-input !w-auto !py-1.5 text-sm">
           <option value="">Link to service…</option>
           <option v-for="s in services" :key="s.id" :value="s.id">{{ s.name }}</option>
-        </select>
+        </SelectBox>
         <button @click="bulkAssign" :disabled="!bulkService" class="admin-btn-primary a-btn-sm">Assign</button>
         <button @click="selected = []" class="a-btn-ghost a-btn-sm ml-auto">Clear</button>
       </div>
@@ -220,7 +220,7 @@
                   <span>On a date and time</span>
                 </label>
                 <div v-if="form.schedule_mode === 'schedule'">
-                  <input v-model="form.scheduled_at" type="datetime-local" :min="minLocal" class="admin-input text-sm" />
+                  <DatePicker v-model="form.scheduled_at" with-time :min="minLocal" placeholder="Pick date and time" class="admin-input text-sm" />
                   <p class="text-[11px] a-subtle mt-1">Your time zone: {{ tz }}</p>
                   <p v-if="form.errors.scheduled_at" class="a-error">{{ form.errors.scheduled_at }}</p>
                   <p v-if="!permissions.publish" class="text-[11px] a-muted mt-1">If it is approved before this time, it goes live automatically at this time.</p>
@@ -238,10 +238,10 @@
 
             <div>
               <label class="admin-label">Primary service *</label>
-              <select v-model="form.primary_service_id" class="admin-input">
+              <SelectBox v-model="form.primary_service_id" class="admin-input">
                 <option :value="null">— Choose service —</option>
                 <option v-for="s in services" :key="s.id" :value="s.id">{{ s.name }}</option>
-              </select>
+              </SelectBox>
               <p class="text-[11px] a-subtle mt-1">The money page this article supports.</p>
             </div>
 
@@ -291,7 +291,7 @@
           <span class="flex-1">
             <span class="block text-sm font-semibold">Schedule</span>
             <span class="block text-xs a-muted">{{ approving?.scheduled_at ? `The author asked for ${when(approving.scheduled_at)}. You can change it.` : 'Goes live automatically at this time.' }}</span>
-            <input v-if="approveForm.mode === 'schedule'" v-model="approveForm.scheduled_at" type="datetime-local" :min="minLocal" class="admin-input text-sm mt-2" />
+            <DatePicker v-if="approveForm.mode === 'schedule'" v-model="approveForm.scheduled_at" with-time :min="minLocal" placeholder="Pick date and time" class="admin-input text-sm mt-2" />
           </span>
         </label>
         <p v-if="approveForm.errors.scheduled_at" class="text-xs a-text-danger">{{ approveForm.errors.scheduled_at }}</p>
@@ -334,6 +334,8 @@
 </template>
 
 <script setup>
+import DatePicker from '@/Components/DatePicker.vue';
+import SelectBox from '@/Components/SelectBox.vue';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { router, useForm, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';

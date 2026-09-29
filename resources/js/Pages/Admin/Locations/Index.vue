@@ -61,10 +61,10 @@
           </div>
           <div>
             <label class="admin-label">Region</label>
-            <select v-model="form.region" class="admin-input">
+            <SelectBox v-model="form.region" class="admin-input">
               <option :value="null">—</option>
               <option v-for="r in regions" :key="r" :value="r">{{ r }}</option>
-            </select>
+            </SelectBox>
           </div>
           <div>
             <label class="admin-label">Order</label>
@@ -159,6 +159,7 @@
 </template>
 
 <script setup>
+import SelectBox from '@/Components/SelectBox.vue';
 import { compressImage } from '@/Composables/compressImage';
 import { confirmDialog } from '@/Composables/useConfirm';
 import { computed, onMounted, ref } from 'vue';

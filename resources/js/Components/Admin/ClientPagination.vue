@@ -5,9 +5,9 @@
       <span>Showing <span class="font-semibold a-text tabular-nums">{{ pager.from.value }}–{{ pager.to.value }}</span> of <span class="font-semibold a-text tabular-nums">{{ pager.total.value.toLocaleString() }}</span></span>
       <label class="flex items-center gap-1.5">
         <span class="hidden sm:inline">Rows</span>
-        <select v-model.number="pager.perPage.value" class="admin-input a-input-sm !w-auto" aria-label="Rows per page">
+        <SelectBox v-model.number="pager.perPage.value" class="admin-input a-input-sm !w-auto" aria-label="Rows per page">
           <option v-for="n in options" :key="n" :value="n">{{ n }}</option>
-        </select>
+        </SelectBox>
       </label>
     </div>
     <nav v-if="pager.lastPage.value > 1" class="flex items-center gap-1" aria-label="Pagination">
@@ -27,6 +27,7 @@
 </template>
 
 <script setup>
+import SelectBox from '@/Components/SelectBox.vue';
 import { computed } from 'vue';
 
 const props = defineProps({

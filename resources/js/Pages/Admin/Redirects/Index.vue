@@ -26,12 +26,12 @@
         <div v-if="tab === 'redirects'">
           <form @submit.prevent="applySearch" class="pb-4 flex flex-col sm:flex-row gap-2">
             <input v-model="searchText" type="search" placeholder="Search old or new URL…" class="admin-input sm:max-w-sm" />
-            <select v-model="codeFilter" @change="applySearch" class="admin-input sm:max-w-[10rem]">
+            <SelectBox v-model="codeFilter" @change="applySearch" class="admin-input sm:max-w-[10rem]">
               <option value="">All types</option>
               <option value="301">301 permanent</option>
               <option value="302">302 temporary</option>
               <option value="410">410 gone</option>
-            </select>
+            </SelectBox>
           </form>
           <div class="overflow-x-auto -mx-5 border-t a-border">
             <table class="a-table">
@@ -150,11 +150,11 @@
         </div>
         <div>
           <label class="admin-label">Type</label>
-          <select v-model.number="form.code" class="admin-input">
+          <SelectBox v-model.number="form.code" class="admin-input">
             <option :value="301">301 Moved permanently (normal)</option>
             <option :value="302">302 Temporary</option>
             <option :value="410">410 Gone (no replacement page)</option>
-          </select>
+          </SelectBox>
         </div>
         <div v-if="form.code !== 410">
           <label class="admin-label">New URL *</label>
@@ -181,6 +181,7 @@
 </template>
 
 <script setup>
+import SelectBox from '@/Components/SelectBox.vue';
 import { confirmDialog } from '@/Composables/useConfirm';
 import { computed, ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';

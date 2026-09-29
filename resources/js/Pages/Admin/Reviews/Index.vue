@@ -70,12 +70,12 @@
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="admin-label">Show reviews rated</label>
-              <select v-model="gForm.min_rating" class="admin-input" :disabled="!can('reviews.google')">
+              <SelectBox v-model="gForm.min_rating" class="admin-input" :disabled="!can('reviews.google')">
                 <option value="5">5 stars only</option>
                 <option value="4">4 stars and up</option>
                 <option value="3">3 stars and up</option>
                 <option value="1">All ratings</option>
-              </select>
+              </SelectBox>
             </div>
             <label class="flex flex-col justify-end gap-2 cursor-pointer">
               <span class="admin-label !mb-0">Your own reviews</span>
@@ -187,7 +187,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="admin-label">Date of the review</label>
-            <input v-model="form.review_date" type="date" class="admin-input" />
+            <DatePicker v-model="form.review_date" :max="new Date().toISOString().slice(0, 10)" placeholder="Date of the review" class="admin-input" />
           </div>
           <div>
             <label class="admin-label">Photo (optional)</label>
@@ -208,6 +208,8 @@
 </template>
 
 <script setup>
+import DatePicker from '@/Components/DatePicker.vue';
+import SelectBox from '@/Components/SelectBox.vue';
 import { computed, ref } from 'vue';
 import { Link, router, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';

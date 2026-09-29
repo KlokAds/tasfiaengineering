@@ -4,9 +4,9 @@
       <span>Showing <span class="font-semibold a-text tabular-nums">{{ meta.from }}–{{ meta.to }}</span> of <span class="font-semibold a-text tabular-nums">{{ meta.total.toLocaleString() }}</span></span>
       <label v-if="meta.total > 10" class="flex items-center gap-1.5">
         <span class="hidden sm:inline">Rows</span>
-        <select :value="meta.per_page" @change="e => setPerPage(e.target.value)" class="admin-input a-input-sm !w-auto" aria-label="Rows per page">
+        <SelectBox :model-value="meta.per_page" @update:model-value="v => setPerPage(v)" class="admin-input a-input-sm !w-auto" aria-label="Rows per page">
           <option v-for="n in options" :key="n" :value="n">{{ n }}</option>
-        </select>
+        </SelectBox>
       </label>
     </div>
 
@@ -27,6 +27,7 @@
 </template>
 
 <script setup>
+import SelectBox from '@/Components/SelectBox.vue';
 import { computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 

@@ -37,14 +37,14 @@
         <div class="a-seg self-start">
           <button v-for="st in statusTabs" :key="st.key" @click="go({ status: st.key })" :class="(filters.status || '') === st.key && 'is-on'">{{ st.label }}</button>
         </div>
-        <select :value="filters.folder || ''" @change="e => go({ folder: e.target.value })" class="admin-input lg:max-w-xs">
+        <SelectBox :model-value="filters.folder || ''" @update:model-value="v => go({ folder: v })" class="admin-input lg:max-w-xs">
           <option value="">All folders</option>
           <option v-for="f in folders" :key="f" :value="f">{{ f }}</option>
-        </select>
-        <select :value="filters.sort || ''" @change="e => go({ sort: e.target.value })" class="admin-input lg:max-w-[11rem]">
+        </SelectBox>
+        <SelectBox :model-value="filters.sort || ''" @update:model-value="v => go({ sort: v })" class="admin-input lg:max-w-[11rem]">
           <option value="">Newest first</option>
           <option value="size">Largest first</option>
-        </select>
+        </SelectBox>
         <form @submit.prevent="go({ search })" class="lg:ml-auto">
           <input v-model="search" type="search" placeholder="Search file name…" class="admin-input lg:w-64" />
         </form>
@@ -140,6 +140,7 @@
 </template>
 
 <script setup>
+import SelectBox from '@/Components/SelectBox.vue';
 import { confirmDialog } from '@/Composables/useConfirm';
 import { computed, ref, watch } from 'vue';
 import { Link, router, useForm } from '@inertiajs/vue3';

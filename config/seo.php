@@ -139,6 +139,7 @@ return [
                 'system.maintenance_back' => ['type' => 'text', 'default' => ''],
                 'system.debug_until' => ['type' => 'text', 'default' => ''],
                 'system.app_url' => ['type' => 'text', 'default' => ''],
+                'system.env' => ['type' => 'text', 'default' => ''],
                 'mail.enabled' => ['type' => 'toggle', 'default' => '0'],
                 'mail.host' => ['type' => 'text', 'default' => ''],
                 'mail.port' => ['type' => 'text', 'default' => '587'],

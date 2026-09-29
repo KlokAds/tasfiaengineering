@@ -17,11 +17,11 @@
     <div class="admin-card overflow-hidden">
       <div class="flex flex-col md:flex-row gap-2 p-4 border-b a-border">
         <input v-model="search" type="search" placeholder="Search services…" class="admin-input md:max-w-xs" />
-        <select v-model="categoryFilter" class="admin-input md:max-w-[15rem]">
+        <SelectBox v-model="categoryFilter" class="admin-input md:max-w-[15rem]">
           <option value="">All categories</option>
           <option value="none">Without category</option>
           <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
-        </select>
+        </SelectBox>
         <label class="inline-flex items-center gap-2 text-sm a-muted md:ml-auto cursor-pointer">
           <input v-model="onlyIssues" type="checkbox" class="a-switch" /> Only pages with SEO errors
         </label>
@@ -134,10 +134,10 @@
               </label>
               <div>
                 <label class="admin-label">Category</label>
-                <select v-model="form.category_id" class="admin-input">
+                <SelectBox v-model="form.category_id" class="admin-input">
                   <option :value="null">— Choose category —</option>
                   <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
-                </select>
+                </SelectBox>
                 <p v-if="!categories.length" class="a-help"><Link href="/admin/service-categories" class="underline">Create categories first</Link></p>
               </div>
               <div>
@@ -187,6 +187,7 @@
 </template>
 
 <script setup>
+import SelectBox from '@/Components/SelectBox.vue';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { Link, router, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';

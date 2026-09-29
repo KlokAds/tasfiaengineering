@@ -7,6 +7,11 @@
       </button>
     </PageHeader>
 
+    <p class="a-alert a-alert-info text-[13px] mb-5">
+      <b>How it works:</b> click <b>New role</b> (or <b>Edit permissions</b> on a role) to open the permission table. Tick what the role may do in each area (View, Create, Edit, Delete and special rights), then save.
+      Give the role to a person under <a href="/admin/users" class="font-semibold underline">Team members</a>.
+    </p>
+
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
       <article v-for="r in roles" :key="r.id" class="admin-card p-5 flex flex-col">
         <div class="flex items-start justify-between gap-3">
@@ -88,8 +93,10 @@
                     <p class="font-semibold">{{ m.label }}</p>
                     <p v-if="m.help" class="text-xs a-subtle">{{ m.help }}</p>
                   </td>
-                  <td v-for="a in STANDARD" :key="a" class="text-center">
-                    <input v-if="m.actions[a]" type="checkbox" :checked="has(`${key}.${a}`)" @change="toggle(key, a, m)" :title="`${m.label}: ${m.actions[a]}`" :aria-label="`${m.label}: ${m.actions[a]}`" />
+                  <td v-for="a in STANDARD" :key="a" class="text-center !p-0">
+                    <label v-if="m.actions[a]" :class="['perm-cell', has(`${key}.${a}`) && 'is-on']" :title="`${m.label}: ${m.actions[a]}`">
+                      <input type="checkbox" :checked="has(`${key}.${a}`)" @change="toggle(key, a, m)" :aria-label="`${m.label}: ${m.actions[a]}`" />
+                    </label>
                     <span v-else class="a-subtle">·</span>
                   </td>
                   <td>
@@ -124,7 +131,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import PageHeader from '@/Components/Admin/PageHeader.vue';
@@ -134,6 +141,8 @@ import { usePermissions } from '@/Composables/usePermissions';
 
 const props = defineProps({ roles: Array, modules: Object });
 const { can } = usePermissions();
+// "+ Create a custom role" on the Team page lands here with ?new=1
+onMounted(() => { if (new URLSearchParams(location.search).get('new') && can('roles.create')) openModal(); });
 
 const STANDARD = ['view', 'create', 'edit', 'delete'];
 const SENSITIVE = ['articles.publish', 'system.update', 'roles.edit', 'users.delete'];
@@ -208,3 +217,10 @@ async function remove(r) {
   }
 }
 </script>
+
+<style scoped>
+/* The whole table cell is the click target, not just the tiny box. */
+.perm-cell { display: flex; align-items: center; justify-content: center; min-height: 3rem; cursor: pointer; transition: background 0.12s; }
+.perm-cell:hover { background: var(--a-panel-3); }
+.perm-cell.is-on { background: var(--a-accent-soft); }
+</style>

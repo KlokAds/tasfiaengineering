@@ -41,29 +41,29 @@
           <div class="p-5 space-y-5">
             <div>
               <label class="admin-label">Business Profile (reviews)</label>
-              <select v-model="propsForm.gbp" class="admin-input">
+              <SelectBox v-model="propsForm.gbp" class="admin-input">
                 <option value="">— Do not import reviews —</option>
                 <option v-for="l in lists.locations" :key="l.name" :value="l.name">{{ l.title }}{{ l.address ? ' · ' + l.address : '' }}</option>
-              </select>
+              </SelectBox>
               <p v-if="listErrors.locations" class="a-error">{{ explain(listErrors.locations, 'gbp') }}</p>
               <p v-else-if="!lists.locations.length" class="a-help">No business found for this Google account. Use the account that manages your Google Business Profile.</p>
               <p v-else class="a-help">All reviews are imported (the Places API only gives 5). Replies you write on Google show under each review.</p>
             </div>
             <div>
               <label class="admin-label">Search Console property</label>
-              <select v-model="propsForm.gsc" class="admin-input">
+              <SelectBox v-model="propsForm.gsc" class="admin-input">
                 <option value="">— None —</option>
                 <option v-for="s in lists.sites" :key="s.url" :value="s.url">{{ s.url.replace('sc-domain:', 'Domain: ') }}</option>
-              </select>
+              </SelectBox>
               <p v-if="listErrors.sites" class="a-error">{{ explain(listErrors.sites, 'gsc') }}</p>
               <p v-else-if="!lists.sites.length" class="a-help">No property yet. Add {{ origin }} in <a href="https://search.google.com/search-console" target="_blank" rel="noopener" class="a-accent">Search Console</a> and verify it (the site already supports the HTML-tag method under SEO → Schema & robots).</p>
             </div>
             <div>
               <label class="admin-label">Analytics 4 property</label>
-              <select v-model="propsForm.ga4" class="admin-input">
+              <SelectBox v-model="propsForm.ga4" class="admin-input">
                 <option value="">— None —</option>
                 <option v-for="p in lists.properties" :key="p.id" :value="p.id">{{ p.name }} · {{ p.account }} ({{ p.id.replace('properties/', '') }})</option>
-              </select>
+              </SelectBox>
               <p v-if="listErrors.properties" class="a-error">{{ explain(listErrors.properties, 'ga4') }}</p>
               <p v-else class="a-help">The property that receives data from your Tag Manager.</p>
             </div>
@@ -130,6 +130,7 @@
 </template>
 
 <script setup>
+import SelectBox from '@/Components/SelectBox.vue';
 import { ref } from 'vue';
 import { Link, router, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';

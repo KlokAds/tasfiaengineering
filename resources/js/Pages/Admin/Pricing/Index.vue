@@ -9,10 +9,10 @@
     </PageHeader>
 
     <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
-      <select :value="filters.service || ''" @change="e => router.get('/admin/pricing', e.target.value ? { service: e.target.value } : {}, { preserveScroll: true })" class="admin-input sm:max-w-xs">
+      <SelectBox :model-value="filters.service || ''" @update:model-value="v => router.get('/admin/pricing', v ? { service: v } : {}, { preserveScroll: true })" class="admin-input sm:max-w-xs">
         <option value="">All services</option>
         <option v-for="s in services" :key="s.id" :value="s.id">{{ s.name }}</option>
-      </select>
+      </SelectBox>
       <p class="text-sm a-muted sm:ml-auto"><span class="font-semibold a-text">{{ prices.length }}</span> prices<span v-if="staleIds.length"> · <span class="a-text-warning font-semibold">{{ staleIds.length }} need review</span></span></p>
     </div>
 
@@ -58,10 +58,10 @@
       <form @submit.prevent="save" class="space-y-4">
         <div>
           <label class="admin-label">Service *</label>
-          <select v-model="form.service_id" required class="admin-input">
+          <SelectBox v-model="form.service_id" required class="admin-input">
             <option :value="null" disabled>Choose service</option>
             <option v-for="s in services" :key="s.id" :value="s.id">{{ s.name }}</option>
-          </select>
+          </SelectBox>
         </div>
         <div>
           <label class="admin-label">Item *</label>
@@ -109,6 +109,7 @@
 </template>
 
 <script setup>
+import SelectBox from '@/Components/SelectBox.vue';
 import { confirmDialog } from '@/Composables/useConfirm';
 import { computed, ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';

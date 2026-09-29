@@ -27,11 +27,11 @@
     </div>
     <div v-if="services.length">
       <label class="label" :for="id('service')">What do you need?</label>
-      <select :id="id('service')" v-model="form.subject" class="input">
+      <SelectBox :id="id('service')" v-model="form.subject" class="input">
         <option value="">Choose a service (optional)</option>
         <option v-for="s in services" :key="s.id" :value="s.name">{{ s.name }}</option>
         <option value="Something else">Something else</option>
-      </select>
+      </SelectBox>
     </div>
     <div>
       <label class="label" :for="id('msg')">Details *</label>
@@ -48,6 +48,7 @@
 </template>
 
 <script setup>
+import SelectBox from '@/Components/SelectBox.vue';
 import { computed, reactive, ref } from 'vue';
 import { useForm, usePage } from '@inertiajs/vue3';
 

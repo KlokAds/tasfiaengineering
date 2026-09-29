@@ -49,19 +49,19 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="admin-label">Belongs to</label>
-            <select v-model="form.scope" :disabled="editing?.scope === 'article'" class="admin-input">
+            <SelectBox v-model="form.scope" :disabled="editing?.scope === 'article'" class="admin-input">
               <option value="global">Global (FAQ hub / homepage)</option>
               <option value="service">A service page</option>
               <option value="location">A location page</option>
               <option v-if="editing?.scope === 'article'" value="article">An article</option>
-            </select>
+            </SelectBox>
           </div>
           <div v-if="form.scope === 'service' || form.scope === 'location'">
             <label class="admin-label">Page</label>
-            <select v-model="form.parent_id" required class="admin-input">
+            <SelectBox v-model="form.parent_id" required class="admin-input">
               <option :value="null" disabled>Choose…</option>
               <option v-for="p in parents[form.scope]" :key="p.id" :value="p.id">{{ p.name }}</option>
-            </select>
+            </SelectBox>
           </div>
         </div>
         <div>
@@ -90,6 +90,7 @@
 </template>
 
 <script setup>
+import SelectBox from '@/Components/SelectBox.vue';
 import { confirmDialog } from '@/Composables/useConfirm';
 import { computed, ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';

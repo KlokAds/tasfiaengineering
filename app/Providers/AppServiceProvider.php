@@ -16,6 +16,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // SMTP details saved in Admin → System → Site settings override .env.
+        \App\Support\SystemSettings::applyEnvironment();
         \App\Support\SystemSettings::applyMail();
         \App\Support\SystemSettings::applyUrl();
 

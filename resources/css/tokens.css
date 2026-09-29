@@ -4,6 +4,15 @@
  * Charcoal + construction orange.
  * =============================================================================
  */
+@layer base {
+    button:not(:disabled), [role='button'], [role='option'], [role='tab'], summary, select,
+    input[type='checkbox'], input[type='radio'], input[type='file'], input[type='color'], input[type='range'],
+    label:has(> input[type='checkbox']), label:has(> input[type='radio']), label:has(input[type='file']) {
+        cursor: pointer;
+    }
+    button:disabled, input:disabled, select:disabled, textarea:disabled, [aria-disabled='true'] { cursor: not-allowed; }
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {

@@ -20,10 +20,10 @@
     <section class="admin-card overflow-hidden">
       <div class="p-3 border-b a-border flex flex-wrap gap-2 items-center">
         <input v-model="q" type="search" class="admin-input !w-64 max-w-full" placeholder="Search pages…" />
-        <select v-model="type" class="admin-input !w-44">
+        <SelectBox v-model="type" class="admin-input !w-44">
           <option value="">All types</option>
           <option v-for="t in types" :key="t" :value="t">{{ t }}</option>
-        </select>
+        </SelectBox>
         <span class="ml-auto text-xs a-subtle">{{ shown.length }} of {{ rows.length }} pages</span>
       </div>
       <div class="overflow-x-auto">
@@ -56,6 +56,7 @@
 </template>
 
 <script setup>
+import SelectBox from '@/Components/SelectBox.vue';
 import { computed, ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';

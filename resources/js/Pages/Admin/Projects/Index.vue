@@ -16,11 +16,11 @@
       <form @submit.prevent="go({ search: searchQuery, page: '' })" class="md:w-80">
         <input v-model="searchQuery" type="search" placeholder="Search by title or area…" class="admin-input" />
       </form>
-      <select :value="filters.service || ''" @change="e => go({ service: e.target.value, page: '' })" class="admin-input md:max-w-[16rem]">
+      <SelectBox :model-value="filters.service || ''" @update:model-value="v => go({ service: v, page: '' })" class="admin-input md:max-w-[16rem]">
         <option value="">All services</option>
         <option value="none">Not linked to a service</option>
         <option v-for="s in services" :key="s.id" :value="s.id">{{ s.name }}</option>
-      </select>
+      </SelectBox>
       <p class="text-sm a-muted md:ml-auto self-center"><span class="font-semibold a-text">{{ projects.total }}</span> projects</p>
     </div>
 
@@ -61,17 +61,17 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="admin-label">Service</label>
-                <select v-model="form.service_id" class="admin-input">
+                <SelectBox v-model="form.service_id" class="admin-input">
                   <option :value="null">— Choose service —</option>
                   <option v-for="s in services" :key="s.id" :value="s.id">{{ s.name }}</option>
-                </select>
+                </SelectBox>
               </div>
               <div>
                 <label class="admin-label">Location page</label>
-                <select v-model="form.location_id" class="admin-input">
+                <SelectBox v-model="form.location_id" class="admin-input">
                   <option :value="null">— None —</option>
                   <option v-for="l in locations" :key="l.id" :value="l.id">{{ l.name }}</option>
-                </select>
+                </SelectBox>
               </div>
               <div>
                 <label class="admin-label">Area / estate</label>
@@ -79,14 +79,14 @@
               </div>
               <div>
                 <label class="admin-label">Property type</label>
-                <select v-model="form.property_type" class="admin-input">
+                <SelectBox v-model="form.property_type" class="admin-input">
                   <option :value="null">—</option>
                   <option v-for="t in propertyTypes" :key="t" :value="t">{{ t }}</option>
-                </select>
+                </SelectBox>
               </div>
               <div>
                 <label class="admin-label">Completed on</label>
-                <input v-model="form.completed_on" type="date" class="admin-input" :max="today" />
+                <DatePicker v-model="form.completed_on" :max="today" placeholder="When was it finished?" class="admin-input" />
               </div>
               <div>
                 <label class="admin-label">Video link</label>
@@ -123,6 +123,8 @@
 </template>
 
 <script setup>
+import DatePicker from '@/Components/DatePicker.vue';
+import SelectBox from '@/Components/SelectBox.vue';
 import { ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';

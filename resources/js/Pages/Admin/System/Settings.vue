@@ -44,6 +44,26 @@
       <form @submit.prevent="saveStatus" class="admin-card overflow-hidden">
         <header class="a-card-head">
           <div>
+            <h3 class="a-card-title">Site mode</h3>
+            <p class="a-card-sub">Live for the real website. Testing for a copy on a test server: Google is told not to index it.</p>
+          </div>
+          <span :class="['a-badge', server.environment === 'production' ? 'a-badge-success' : 'a-badge-warning']">Now: {{ server.environment === 'production' ? 'Live' : 'Testing' }}</span>
+        </header>
+        <div class="p-5 space-y-4">
+          <div class="grid sm:grid-cols-3 gap-3">
+            <label v-for="m in envModes" :key="m.value" class="a-choice">
+              <input v-model="statusForm.env" type="radio" :value="m.value" />
+              <span><span class="block text-sm font-semibold">{{ m.label }}</span><span class="block text-xs a-muted mt-0.5">{{ m.help }}</span></span>
+            </label>
+          </div>
+          <p v-if="statusForm.env === 'local' && server.environment === 'production'" class="a-alert a-alert-warning text-xs">Testing mode on the live website hides it from Google. Use it only on a test copy.</p>
+          <div class="flex justify-end"><button type="submit" :disabled="statusForm.processing" class="admin-btn-secondary">Save</button></div>
+        </div>
+      </form>
+
+      <form @submit.prevent="saveStatus" class="admin-card overflow-hidden">
+        <header class="a-card-head">
+          <div>
             <h3 class="a-card-title">Website address (production URL)</h3>
             <p class="a-card-sub">The real domain. Sitemap, canonical tags, Google schema and email links always use it, even if the server's .env says something else.</p>
           </div>
@@ -112,11 +132,11 @@
             </div>
             <div>
               <label class="admin-label">Security</label>
-              <select v-model="mailForm.encryption" class="admin-input">
+              <SelectBox v-model="mailForm.encryption" class="admin-input">
                 <option value="tls">TLS (port 587)</option>
                 <option value="ssl">SSL (port 465)</option>
                 <option value="none">None</option>
-              </select>
+              </SelectBox>
             </div>
           </div>
           <div class="grid md:grid-cols-2 gap-4">
@@ -210,6 +230,7 @@
 </template>
 
 <script setup>
+import SelectBox from '@/Components/SelectBox.vue';
 import { computed, onBeforeUnmount, ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
@@ -255,6 +276,7 @@ const statusForm = useForm({
   maintenance_message: props.status.maintenance_message || '',
   maintenance_back: props.status.maintenance_back || '',
   app_url: props.status.app_url || '',
+  env: props.status.env || '',
 });
 async function saveStatus() {
   if (statusForm.maintenance && !props.status.maintenance) {
@@ -264,6 +286,11 @@ async function saveStatus() {
   statusForm.post('/admin/system/settings', { preserveScroll: true });
 }
 
+const envModes = computed(() => [
+  { value: 'production', label: 'Live (production)', help: 'Google indexes the site, error details are hidden.' },
+  { value: 'local', label: 'Testing (local)', help: 'robots.txt blocks Google. For a test copy only.' },
+  { value: '', label: 'Use server setting', help: `APP_ENV in .env (${props.status.env_file}).` },
+]);
 const now = ref(Date.now());
 const timer = setInterval(() => { now.value = Date.now(); }, 15000);
 onBeforeUnmount(() => clearInterval(timer));

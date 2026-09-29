@@ -25,6 +25,8 @@ class SystemSettingsController extends Controller
                 'maintenance_message' => SiteSetting::get('system.maintenance_message'),
                 'maintenance_back' => SiteSetting::get('system.maintenance_back'),
                 'app_url' => SiteSetting::get('system.app_url'),
+                'env' => SiteSetting::get('system.env'),
+                'env_file' => (string) env('APP_ENV', 'production'),
                 'debug_until' => SystemSettings::debugUntil() ? date(DATE_ATOM, SystemSettings::debugUntil()) : null,
                 'debug_minutes' => SystemSettings::DEBUG_MINUTES,
             ],
@@ -63,12 +65,14 @@ class SystemSettingsController extends Controller
                 'maintenance_message' => 'nullable|string|max:300',
                 'maintenance_back' => 'nullable|string|max:60',
                 'app_url' => ['nullable', 'url', 'max:190', 'regex:#^https?://[^/]+/?$#'],
+                'env' => 'nullable|in:production,local',
             ], ['app_url.regex' => 'Only the domain, e.g. https://tasfiaengineering.com (no page path).']);
             SiteSetting::putMany([
                 'system.maintenance' => (bool) ($data['maintenance'] ?? false),
                 'system.maintenance_message' => $data['maintenance_message'] ?? '',
                 'system.maintenance_back' => $data['maintenance_back'] ?? '',
                 'system.app_url' => rtrim((string) ($data['app_url'] ?? ''), '/'),
+                'system.env' => $data['env'] ?? '',
             ]);
             Log::warning('Maintenance mode ' . (($data['maintenance'] ?? false) ? 'ON' : 'OFF'), ['user' => $request->user()->id]);
 

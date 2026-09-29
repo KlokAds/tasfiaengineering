@@ -1,6 +1,10 @@
 <template>
   <AdminLayout title="Users">
-    <PageHeader title="Team members" description="Everyone who can sign in to the admin. Each person gets exactly one role; change what a role can do under Roles & permissions.">
+    <PageHeader title="Team members" description="Everyone who can sign in to the admin. Each person gets one role; the role decides what they can see and do.">
+      <Link v-if="can('roles.view')" href="/admin/roles" class="admin-btn-secondary">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3zM9 12l2 2 4-4" /></svg>
+        Roles & permissions
+      </Link>
       <button @click="openModal()" class="admin-btn-primary">+ Add user</button>
     </PageHeader>
 
@@ -54,7 +58,10 @@
         </div>
 
         <div>
-          <label class="admin-label">Role *</label>
+          <label class="admin-label flex items-center justify-between">
+            <span>Role *</span>
+            <Link v-if="can('roles.create')" href="/admin/roles?new=1" class="text-[12px] a-accent font-semibold">+ Create a custom role</Link>
+          </label>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <label v-for="r in roles" :key="r.name" :class="['flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition', form.role === r.name ? 'border-[var(--a-accent)] bg-[var(--a-accent-soft)]' : 'a-border hover:bg-[var(--a-panel-2)]']">
               <input v-model="form.role" type="radio" :value="r.name" class="mt-1" />
@@ -89,16 +96,18 @@
 
 <script setup>
 import { computed, ref } from 'vue';
-import { router, useForm, usePage } from '@inertiajs/vue3';
+import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import ClientPagination from '@/Components/Admin/ClientPagination.vue';
 import { usePaged } from '@/Composables/usePaged';
 import PageHeader from '@/Components/Admin/PageHeader.vue';
+import { usePermissions } from '@/Composables/usePermissions';
 import Modal from '@/Components/Admin/Modal.vue';
 import Avatar from '@/Components/Admin/Avatar.vue';
 import { confirmDialog } from '@/Composables/useConfirm';
 
 const props = defineProps({ users: Array, roles: Array });
+const { can } = usePermissions();
 
 const me = computed(() => usePage().props.auth?.user?.id);
 const roleLabel = name => props.roles.find(r => r.name === name)?.label || name || 'No role';

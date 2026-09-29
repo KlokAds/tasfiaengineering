@@ -39,9 +39,9 @@
               </label>
               <template v-else>
                 <label class="admin-label">{{ field.label }}</label>
-                <select v-if="field.type === 'select'" v-model="form[fk(key)]" class="admin-input" :disabled="readOnly">
+                <SelectBox v-if="field.type === 'select'" v-model="form[fk(key)]" class="admin-input" :disabled="readOnly">
                   <option v-for="opt in field.options" :key="opt" :value="opt">{{ opt }}</option>
-                </select>
+                </SelectBox>
                 <textarea v-else-if="field.type === 'textarea'" v-model="form[fk(key)]" rows="3" class="admin-input" :disabled="readOnly"></textarea>
                 <input v-else v-model="form[fk(key)]" type="text" class="admin-input" :disabled="readOnly" />
                 <p v-if="form.errors[fk(key)]" class="a-error">{{ form.errors[fk(key)] }}</p>
@@ -90,6 +90,7 @@
 </template>
 
 <script setup>
+import SelectBox from '@/Components/SelectBox.vue';
 import { computed } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';

@@ -80,6 +80,23 @@ class SystemSettings
     }
 
     /**
+     * Site mode from admin: "production" (live: Google may index, errors hidden) or "local"
+     * (testing: robots.txt blocks Google). Empty = whatever APP_ENV in .env says.
+     */
+    public static function applyEnvironment(): void
+    {
+        $mode = (string) self::safe(fn () => SiteSetting::get('system.env'));
+        if (!in_array($mode, ['production', 'local'], true) || app()->runningUnitTests()) {
+            return;
+        }
+        app()->instance('env', $mode);
+        config(['app.env' => $mode]);
+        if ($mode === 'production') {
+            config(['app.debug' => false]); // the 30-minute debug switch can still turn it on for the team
+        }
+    }
+
+    /**
      * Website address from admin (overrides APP_URL): sitemap, canonical tags, schema and
      * emails then always use the real domain, and https is forced when it starts with https.
      */
