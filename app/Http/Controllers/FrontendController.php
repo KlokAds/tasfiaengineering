@@ -76,9 +76,13 @@ class FrontendController extends Controller
             ->merge(ServiceDetail::where('is_active', true)->orderBy('order')->pluck('image')->filter($isPhoto))
             ->map(fn ($p) => '/' . ltrim($p, '/'))->unique()->take(3)->values();
 
+        // Banner: the photo set in Admin → About page → Page banner; a job photo when it is empty or an old illustration.
+        $banner = $isPhoto($about?->a_bread_img) ? '/' . ltrim($about->a_bread_img, '/') : ($photos[0] ?? null);
+
         return Inertia::render('Frontend/About', [
             'aboutContent' => $about,
             'photos' => $photos,
+            'banner' => $banner,
             'facts' => [
                 'founded' => SiteSetting::get('business.founded_year'),
                 'services' => $this->liveServices()->count(),

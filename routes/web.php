@@ -38,6 +38,10 @@ use Illuminate\Support\Facades\Route;
 | Public Frontend SPA Routes (Inertia.js - Without Page Reload)
 |--------------------------------------------------------------------------
 */
+// First run only (closed once a user exists): create the owner account.
+Route::get('/setup', [\App\Http\Controllers\SetupController::class, 'show'])->name('setup');
+Route::post('/setup', [\App\Http\Controllers\SetupController::class, 'store'])->middleware('throttle:10,1')->name('setup.store');
+
 Route::get('/', [FrontendController::class, 'index'])->name('home');
 Route::get('/about', [FrontendController::class, 'about'])->name('about');
 Route::get('/services', [FrontendController::class, 'services'])->name('services');
@@ -207,6 +211,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware
     Route::post('/media/folders/rename', [MediaController::class, 'renameFolder'])->middleware('can:media.edit')->name('media.folders.rename');
     Route::post('/media/folders/delete', [MediaController::class, 'deleteFolder'])->middleware('can:media.delete')->name('media.folders.delete');
     Route::post('/media/transfer', [MediaController::class, 'transfer'])->middleware('can:media.view')->name('media.transfer');
+    Route::get('/media/download', [MediaController::class, 'download'])->middleware('can:media.view')->name('media.download');
+    Route::post('/media/download-zip', [MediaController::class, 'downloadZip'])->middleware(['can:media.view', 'throttle:10,1'])->name('media.download-zip');
 
     // ---------------- SEO ----------------
     Route::get('/seo/health', [SeoHealthController::class, 'index'])->middleware('can:seo_health.view')->name('seo.health');

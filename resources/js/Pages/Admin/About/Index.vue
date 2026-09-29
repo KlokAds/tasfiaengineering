@@ -65,7 +65,7 @@ const readOnly = computed(() => !can('about.edit'));
 const images = [
   { field: 'img_one', label: 'Main photo', help: 'Your team or owner on a real job site.' },
   { field: 'img_two', label: 'Second photo', help: 'Workshop, van, or a finished project.' },
-  { field: 'bc_img', label: 'Banner background' },
+  { field: 'a_bread_img', label: 'Page banner (top of the About page)', help: 'Wide photo, 1920 × 500 px or larger. Shown behind the page title with a dark overlay.' },
 ];
 const previews = reactive({});
 
@@ -75,7 +75,7 @@ const form = useForm({
   short_desc: props.aboutContent?.short_desc || '',
   img_one: null,
   img_two: null,
-  bc_img: null,
+  a_bread_img: null,
 });
 
 const text = computed(() => (form.short_desc || '').replace(/<[^>]*>/g, ' ').toLowerCase());

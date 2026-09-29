@@ -16,4 +16,7 @@ return [
     'run_composer' => (bool) env('DEPLOY_RUN_COMPOSER', true),
 
     'step_timeout' => (int) env('DEPLOY_STEP_TIMEOUT', 600),
+
+    // New database migrations run by themselves on the first visit after an update.
+    'auto_migrate' => (bool) env('DEPLOY_AUTO_MIGRATE', true),
 ];

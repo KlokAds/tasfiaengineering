@@ -17,6 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
             users: '/admin/dashboard'
         );
 
+        // Runs first: app key, database check, automatic migrations, first-run owner setup.
+        $middleware->prepend(\App\Http\Middleware\AutoSetup::class);
         $middleware->append(\App\Http\Middleware\HandleRedirects::class);
 
         $middleware->web(append: [

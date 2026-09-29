@@ -77,6 +77,7 @@
             </template>
           </nav>
           <div v-if="currentFolder" class="ml-auto flex gap-1.5">
+            <button type="button" class="a-btn-ghost a-btn-sm" :disabled="zipping" @click="downloadZip({ folder: currentFolder })">{{ zipping ? 'Preparing…' : 'Download folder' }}</button>
             <button v-if="can('media.create')" type="button" class="a-btn-ghost a-btn-sm" @click="openFolderDialog('create')">New subfolder</button>
             <button v-if="can('media.edit') && currentFolder !== 'Admin'" type="button" class="a-btn-ghost a-btn-sm" @click="openFolderDialog('rename')">Rename</button>
             <button v-if="can('media.delete') && currentFolder !== 'Admin'" type="button" class="a-btn-ghost a-danger a-btn-sm" @click="deleteFolder">Delete folder</button>
@@ -102,6 +103,7 @@
             <span class="font-semibold">{{ selected.length }} selected</span>
             <button v-if="can('media.edit')" @click="openTransfer('move')" class="admin-btn-secondary a-btn-sm">Move to…</button>
             <button v-if="can('media.create')" @click="openTransfer('copy')" class="admin-btn-secondary a-btn-sm">Copy to…</button>
+            <button type="button" :disabled="zipping" @click="downloadZip({ paths: selected })" class="admin-btn-secondary a-btn-sm">{{ zipping ? 'Preparing…' : selected.length === 1 ? 'Download' : 'Download (.zip)' }}</button>
             <button v-if="can('media.delete') && selectedUnused.length" @click="deleteSelected" class="a-btn-danger a-btn-sm">Delete {{ selectedUnused.length }} unused</button>
             <button @click="selected = []" class="a-btn-ghost a-btn-sm">Clear</button>
           </template>
@@ -219,8 +221,14 @@
           </div>
 
           <div class="pt-3 border-t a-border">
-            <button v-if="!detail.usage_count && can('media.delete')" type="button" @click="deleteOne(detail)" class="a-btn-danger">Delete file permanently</button>
-            <p v-else-if="detail.usage_count" class="a-alert a-alert-info text-xs">Locked: this file is in use. Replace or remove it on the pages above first.</p>
+            <div class="flex flex-wrap gap-2">
+              <a :href="`/admin/media/download?path=${encodeURIComponent(detail.path)}`" class="admin-btn-secondary">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Download
+              </a>
+              <button v-if="!detail.usage_count && can('media.delete')" type="button" @click="deleteOne(detail)" class="a-btn-danger">Delete file permanently</button>
+            </div>
+            <p v-if="detail.usage_count" class="a-alert a-alert-info text-xs mt-3">Locked: this file is in use. Replace or remove it on the pages above first.</p>
           </div>
         </div>
       </div>
@@ -340,6 +348,33 @@ const copied = ref(false);
 
 const unusedOnPage = computed(() => props.files.data.filter(f => !f.usage_count).map(f => f.path));
 const selectedUnused = computed(() => selected.value.filter((p) => unusedOnPage.value.includes(p)));
+
+// ---- download: one file directly, several files or a folder as a .zip
+const zipping = ref(false);
+async function downloadZip(payload) {
+  if (payload.paths?.length === 1) {
+    window.location.href = `/admin/media/download?path=${encodeURIComponent(payload.paths[0])}`;
+    return;
+  }
+  zipping.value = true;
+  uploadError.value = '';
+  try {
+    const res = await axios.post('/admin/media/download-zip', payload, { responseType: 'blob' });
+    const name = (res.headers['content-disposition'] || '').match(/filename="?([^";]+)"?/)?.[1] || 'media.zip';
+    const url = URL.createObjectURL(res.data);
+    const a = Object.assign(document.createElement('a'), { href: url, download: name });
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  } catch (err) {
+    let msg = 'Download failed.';
+    try { msg = JSON.parse(await err.response?.data?.text?.())?.message || msg; } catch (e) { /* not JSON */ }
+    uploadError.value = [401, 419].includes(err.response?.status) ? 'Your session has expired. Reload the page and sign in again.' : msg;
+  } finally {
+    zipping.value = false;
+  }
+}
 
 function go(patch, refresh = false) {
   const params = { ...props.filters, ...patch };

@@ -1,7 +1,7 @@
 <template>
   <FrontendLayout>
     <PageHero :title="aboutContent?.title || `About ${company.name}`" eyebrow="About us" :lead="lead"
-      :image="photos[0] || null" :crumbs="[{ label: 'About us' }]" />
+      :image="banner || photos[0] || null" :crumbs="[{ label: 'About us' }]" />
 
     <!-- Who we are -->
     <section class="section-y s-bg">
@@ -149,6 +149,7 @@ import { statsFrom, iconFor } from '@/utils/stats';
 const props = defineProps({
   aboutContent: Object,
   photos: { type: Array, default: () => [] },
+  banner: String,
   facts: { type: Object, default: () => ({}) },
   reviews: { type: Object, default: () => ({ items: [], google: null }) },
   counters: { type: Array, default: () => [] },
