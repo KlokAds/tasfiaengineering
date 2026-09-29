@@ -13,7 +13,7 @@
     </p>
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-      <article v-for="r in roles" :key="r.id" class="admin-card p-5 flex flex-col">
+      <article v-for="r in pager.rows.value" :key="r.id" class="admin-card p-5 flex flex-col">
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
             <h3 class="font-bold flex items-center gap-2 truncate">{{ r.label }}
@@ -50,6 +50,7 @@
         </div>
       </article>
     </div>
+    <ClientPagination :pager="pager" :padded="false" :options="[9, 18, 36, 90]" class="pt-4" />
 
     <!-- ============ Editor ============ -->
     <Modal :show="modalOpen" :title="modalTitle" subtitle="Tick what this role may do. Create, edit and delete also turn on view." width="5xl" @close="modalOpen = false">
@@ -136,11 +137,15 @@ import { router, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import PageHeader from '@/Components/Admin/PageHeader.vue';
 import Modal from '@/Components/Admin/Modal.vue';
+import ClientPagination from '@/Components/Admin/ClientPagination.vue';
+import { usePaged } from '@/Composables/usePaged';
 import { confirmDialog } from '@/Composables/useConfirm';
 import { usePermissions } from '@/Composables/usePermissions';
 
 const props = defineProps({ roles: Array, modules: Object });
 const { can } = usePermissions();
+// 3 cards per row, so pages of 9.
+const pager = usePaged(computed(() => props.roles), 'roles', 9);
 // "+ Create a custom role" on the Team page lands here with ?new=1
 onMounted(() => { if (new URLSearchParams(location.search).get('new') && can('roles.create')) openModal(); });
 

@@ -7,6 +7,7 @@
       </button>
     </PageHeader>
 
+    <StickyBar>
     <div v-if="unlinked" class="a-alert a-alert-warning mb-5">
       <span><span class="font-semibold">{{ unlinked }} project(s) are not linked to a service.</span> <span class="a-muted">Link them so they show on the right service page.</span></span>
       <button @click="go({ service: 'none', page: '' })" class="admin-btn-secondary a-btn-sm ml-auto shrink-0">Show them</button>
@@ -23,6 +24,7 @@
       </SelectBox>
       <p class="text-sm a-muted md:ml-auto self-center"><span class="font-semibold a-text">{{ projects.total }}</span> projects</p>
     </div>
+    </StickyBar>
 
     <div v-if="projects.data.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       <article v-for="p in projects.data" :key="p.id" class="admin-card overflow-hidden flex flex-col group">
@@ -123,6 +125,7 @@
 </template>
 
 <script setup>
+import StickyBar from '@/Components/Admin/StickyBar.vue';
 import DatePicker from '@/Components/DatePicker.vue';
 import SelectBox from '@/Components/SelectBox.vue';
 import { ref } from 'vue';

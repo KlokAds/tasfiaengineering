@@ -351,6 +351,29 @@
     .admin-ui .modal-body .sticky.bottom-0 { bottom: -1.5rem !important; z-index: 20; }
     .admin-ui .modal-body .sticky.top-0 { top: -1.5rem !important; }
 
+    /* ---------- StickyBar: compact copy of stat cards / tabs / filters ---------- */
+    .admin-ui .sticky-compact > * { margin-top: 0 !important; margin-bottom: 0 !important; }
+    .admin-ui .sticky-compact .grid { gap: 0.5rem !important; }
+    .admin-ui .sticky-compact .admin-card, .admin-ui .sticky-compact .a-stat { padding: 0.45rem 0.8rem !important; box-shadow: none; }
+    .admin-ui .sticky-compact .a-stat, .admin-ui .sticky-compact .stat-row { display: flex !important; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
+    .admin-ui .sticky-compact .text-3xl, .admin-ui .sticky-compact .text-2xl, .admin-ui .sticky-compact .text-xl { font-size: 1.05rem !important; line-height: 1.3 !important; margin-top: 0 !important; }
+    .admin-ui .sticky-compact [data-sticky-hide], .admin-ui .sticky-compact .a-stat-hint { display: none !important; }
+    .admin-ui .sticky-compact .a-stat-value { font-size: 1.05rem !important; margin-top: 0 !important; }
+    .admin-ui .sticky-compact .a-alert { padding: 0.4rem 0.75rem; font-size: 0.78rem; }
+    .admin-ui .sticky-compact > * + * { margin-top: 0.4rem !important; }
+    /* Stat cards become one-line chips: label left, number right, hint hidden. */
+    .admin-ui .sticky-compact .grid > .admin-card { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; min-height: 0; }
+    .admin-ui .sticky-compact .grid > .admin-card > p.text-xs:last-child:not(:first-child),
+    .admin-ui .sticky-compact .grid > .admin-card > .a-stat-hint { display: none; }
+    .admin-ui .sticky-compact .grid > .admin-card > * { margin-top: 0 !important; }
+    .admin-ui .sticky-compact .p-5 { padding: 0.5rem 0.8rem !important; }
+    .admin-ui .sticky-compact .py-3 { padding-top: 0.35rem !important; padding-bottom: 0.35rem !important; }
+    .admin-ui .sticky-compact .w-16 { width: 2.6rem !important; height: 2.6rem !important; }
+    .admin-ui .sticky-compact .a-tabs .a-tab { padding-top: 0.45rem; padding-bottom: 0.45rem; }
+    /* Search-result preview title in tables: readable in light and dark. */
+    .admin-ui .serp-title { color: #1a0dab; }
+    .admin-ui.dark .serp-title, .dark .admin-ui .serp-title { color: #8ab4f8; }
+
     /* ---------- Numbered steps (setup guides) ---------- */
     .admin-ui .a-step {
         flex-shrink: 0; width: 1.5rem; height: 1.5rem; border-radius: 999px; display: grid; place-items: center;

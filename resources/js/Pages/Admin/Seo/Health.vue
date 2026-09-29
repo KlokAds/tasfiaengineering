@@ -5,6 +5,7 @@
       <button @click="go({}, true)" class="admin-btn-secondary">Re-scan now</button>
     </PageHeader>
 
+    <StickyBar>
     <!-- Page types -->
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
       <button @click="go({ type: '', code: '' })" :class="['admin-card p-4 text-left transition', !filters.type && 'ring-2 ring-[var(--a-accent)]']">
@@ -21,6 +22,7 @@
         <p class="text-xs a-subtle">{{ t.with_errors }} with errors · {{ t.clean }} clean</p>
       </button>
     </div>
+    </StickyBar>
 
     <div class="grid grid-cols-1 xl:grid-cols-[18rem_1fr] gap-6">
       <!-- Issue filter -->
@@ -80,6 +82,7 @@
 </template>
 
 <script setup>
+import StickyBar from '@/Components/Admin/StickyBar.vue';
 import { computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';

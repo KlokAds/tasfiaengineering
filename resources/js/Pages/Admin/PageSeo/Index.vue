@@ -2,12 +2,14 @@
   <AdminLayout title="Page SEO">
     <PageHeader title="Page SEO" description="Search titles and descriptions for the fixed pages (home, about, contact and the listing pages). Services, locations and articles have their own SEO box inside their editor." />
 
+    <StickyBar>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
       <div class="admin-card p-4"><p class="text-xs font-semibold a-muted">Pages</p><p class="mt-1 text-2xl font-bold">{{ pages.length }}</p></div>
       <div class="admin-card p-4"><p class="text-xs font-semibold a-muted">Average score</p><p class="mt-1 text-2xl font-bold" :class="tone(avg)">{{ avg }}</p></div>
       <div class="admin-card p-4"><p class="text-xs font-semibold a-muted">Missing title or description</p><p class="mt-1 text-2xl font-bold">{{ missing }}</p></div>
       <div class="admin-card p-4"><p class="text-xs font-semibold a-muted">Hidden from Google</p><p class="mt-1 text-2xl font-bold">{{ hidden }}</p></div>
     </div>
+    </StickyBar>
 
     <div class="admin-card overflow-hidden">
       <div class="overflow-x-auto">
@@ -20,7 +22,7 @@
                 <a :href="p.path" target="_blank" class="text-xs a-subtle font-mono hover:underline">{{ p.path }}</a>
               </td>
               <td class="max-w-lg">
-                <p class="text-sm font-medium truncate" style="color: #1a0dab">{{ fullTitle(p) }}</p>
+                <p class="serp-title text-sm font-medium truncate">{{ fullTitle(p) }}</p>
                 <p class="text-xs a-muted line-clamp-2">{{ p.meta_desc || defaultDesc || '—' }}</p>
                 <ul v-if="p.seo.issues.length" class="mt-1 space-y-0.5">
                   <li v-for="(i, n) in p.seo.issues" :key="n" class="flex items-start gap-1.5 text-[11px]">
@@ -96,6 +98,7 @@
 </template>
 
 <script setup>
+import StickyBar from '@/Components/Admin/StickyBar.vue';
 import { computed, ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';

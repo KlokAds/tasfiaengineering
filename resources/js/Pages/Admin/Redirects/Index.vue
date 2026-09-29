@@ -8,12 +8,14 @@
     </PageHeader>
 
     <div class="space-y-5">
+      <StickyBar>
       <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <div v-for="card in statCards" :key="card.label" class="admin-card a-stat">
           <p class="a-stat-label">{{ card.label }}</p>
           <p class="a-stat-value" :class="card.tone">{{ card.value }}</p>
         </div>
       </div>
+      </StickyBar>
 
       <div class="admin-card overflow-hidden">
         <nav class="a-tabs px-4">
@@ -181,6 +183,7 @@
 </template>
 
 <script setup>
+import StickyBar from '@/Components/Admin/StickyBar.vue';
 import SelectBox from '@/Components/SelectBox.vue';
 import { confirmDialog } from '@/Composables/useConfirm';
 import { computed, ref } from 'vue';

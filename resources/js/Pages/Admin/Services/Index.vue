@@ -7,12 +7,14 @@
       </button>
     </PageHeader>
 
+    <StickyBar>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
       <div v-for="s in stats" :key="s.label" class="admin-card a-stat">
         <p class="a-stat-label">{{ s.label }}</p>
         <p class="a-stat-value" :class="s.tone">{{ s.value }}</p>
       </div>
     </div>
+    </StickyBar>
 
     <div class="admin-card overflow-hidden">
       <div class="flex flex-col md:flex-row gap-2 p-4 border-b a-border">
@@ -187,6 +189,7 @@
 </template>
 
 <script setup>
+import StickyBar from '@/Components/Admin/StickyBar.vue';
 import SelectBox from '@/Components/SelectBox.vue';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { Link, router, useForm } from '@inertiajs/vue3';

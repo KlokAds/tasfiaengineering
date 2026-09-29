@@ -1,6 +1,6 @@
 <template>
   <!-- Same look as <Pagination>, for lists that are paged in the browser (see usePaged). -->
-  <div v-if="pager.total.value > 10" :class="['flex flex-col sm:flex-row items-center justify-between gap-3', padded && 'px-5 py-3 border-t a-border']">
+  <div v-if="pager.total.value > options[0]" :class="['flex flex-col sm:flex-row items-center justify-between gap-3', padded && 'px-5 py-3 border-t a-border']">
     <div class="flex items-center gap-3 text-xs a-muted">
       <span>Showing <span class="font-semibold a-text tabular-nums">{{ pager.from.value }}–{{ pager.to.value }}</span> of <span class="font-semibold a-text tabular-nums">{{ pager.total.value.toLocaleString() }}</span></span>
       <label class="flex items-center gap-1.5">

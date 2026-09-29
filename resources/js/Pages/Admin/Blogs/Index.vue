@@ -23,6 +23,7 @@
       </ul>
     </div>
 
+    <StickyBar>
     <!-- Tabs -->
     <nav class="a-tabs mb-5">
       <button v-for="t in tabs" :key="t.key" @click="go({ tab: t.key === 'all' ? '' : t.key, page: '' })"
@@ -57,6 +58,7 @@
       <p class="text-sm"><span class="font-bold">{{ unlinkedCount }}</span> <span class="a-muted">article(s) are not linked to a service page. Every article should support one money page.</span></p>
       <button @click="go({ filter: 'no_service', page: '' })" class="admin-btn-secondary a-btn-sm">Show them</button>
     </div>
+    </StickyBar>
 
     <div class="admin-card overflow-hidden">
       <!-- Filters -->
@@ -334,6 +336,7 @@
 </template>
 
 <script setup>
+import StickyBar from '@/Components/Admin/StickyBar.vue';
 import DatePicker from '@/Components/DatePicker.vue';
 import SelectBox from '@/Components/SelectBox.vue';
 import { computed, onMounted, reactive, ref } from 'vue';

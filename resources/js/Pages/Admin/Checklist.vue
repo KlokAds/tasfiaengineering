@@ -2,6 +2,7 @@
   <AdminLayout title="Website checklist">
     <PageHeader title="Website checklist" description="Everything the public website needs, checked live against your data. Start with the important items; each one says why it matters and links to where you fix it." />
 
+    <StickyBar>
     <!-- Summary -->
     <section class="admin-card p-5 mb-5">
       <div class="flex flex-col lg:flex-row lg:items-center gap-5">
@@ -24,6 +25,7 @@
         </div>
       </div>
     </section>
+    </StickyBar>
 
     <div class="grid grid-cols-1 lg:grid-cols-[15rem_1fr] gap-5 items-start">
       <!-- Groups -->
@@ -86,6 +88,7 @@
 </template>
 
 <script setup>
+import StickyBar from '@/Components/Admin/StickyBar.vue';
 import { computed, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';

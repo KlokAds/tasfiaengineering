@@ -1,31 +1,41 @@
 <template>
   <AdminLayout title="Page banners">
-    <PageHeader title="Page banners" description="The heading strip and background photo at the top of each listing page. The banner title is the page's H1, so name the topic plainly (e.g. “Renovation & repair services”)." />
+    <PageHeader title="Page banners" description="The heading and photo at the top of each listing page. The title is the page's H1, so name the topic plainly, e.g. “Renovation & repair services”." />
 
-    <form @submit.prevent="submit" class="space-y-4">
-      <section v-for="b in banners" :key="b.key" class="admin-card overflow-hidden">
-        <div class="grid grid-cols-1 md:grid-cols-[16rem_1fr]">
-          <label class="a-dropzone !rounded-none !border-0 md:border-r a-border aspect-[16/7] md:aspect-auto md:min-h-[9rem]">
-            <img v-if="previews[b.image] || breadcrumb?.[b.image]" :src="previews[b.image] || '/' + breadcrumb[b.image]" class="w-full h-full object-cover" alt="" />
-            <span v-else class="text-xs px-4">Click to add a background photo</span>
+    <form @submit.prevent="submit">
+      <p class="a-help mb-4">Photo: 1920 × 500 px or larger, a real job photo. Text is placed on a dark overlay, so any photo stays readable.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
+        <section v-for="b in banners" :key="b.key" class="admin-card overflow-hidden flex flex-col">
+          <!-- Live preview: how the banner looks on the page -->
+          <label :class="['relative block aspect-[16/6] overflow-hidden group', readOnly ? '' : 'cursor-pointer']" :title="readOnly ? '' : 'Click to change the photo'">
+            <img v-if="imageOf(b)" :src="imageOf(b)" class="absolute inset-0 w-full h-full object-cover" alt="" />
+            <div v-else class="absolute inset-0 a-panel-3"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/25"></div>
+            <div class="relative h-full flex flex-col justify-end p-4">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-orange-300">{{ b.label }}</p>
+              <p class="text-white text-lg font-bold leading-tight line-clamp-2">{{ form[b.name] || b.placeholder }}</p>
+            </div>
+            <span v-if="!readOnly" class="absolute top-2.5 right-2.5 inline-flex items-center gap-1.5 rounded-lg bg-black/55 text-white text-[11px] font-semibold px-2.5 py-1.5 backdrop-blur-sm opacity-90 group-hover:opacity-100">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              {{ imageOf(b) ? 'Change photo' : 'Add photo' }}
+            </span>
             <input type="file" accept="image/*" class="hidden" :disabled="readOnly" @change="e => pick(b.image, e)" />
           </label>
-          <div class="p-5 space-y-3">
-            <div class="flex items-center justify-between gap-3">
-              <h3 class="a-card-title">{{ b.label }}</h3>
-              <a :href="b.path" target="_blank" class="text-xs a-mono a-subtle a-hover-text">{{ b.path }}</a>
-            </div>
-            <div>
-              <label class="admin-label">Banner title (H1)</label>
-              <input v-model="form[b.name]" type="text" class="admin-input" :placeholder="b.placeholder" :disabled="readOnly" />
-            </div>
-            <p class="a-help">Photo: 1920×500 or larger. Click the picture to change it.</p>
-          </div>
-        </div>
-      </section>
 
-      <div v-if="!readOnly" class="flex justify-end">
-        <button type="submit" :disabled="form.processing" class="admin-btn-primary">{{ form.processing ? 'Saving…' : 'Save banners' }}</button>
+          <div class="p-4 space-y-2 flex-1">
+            <div class="flex items-center justify-between gap-3">
+              <label class="admin-label !mb-0" :for="`bn-${b.key}`">Banner title (H1)</label>
+              <a :href="b.path" target="_blank" class="text-[11px] a-mono a-subtle a-hover-text">{{ b.path }} ↗</a>
+            </div>
+            <input :id="`bn-${b.key}`" v-model="form[b.name]" type="text" class="admin-input" :placeholder="b.placeholder" :disabled="readOnly" />
+            <p v-if="previews[b.image]" class="text-[11px] a-text-warning">New photo chosen: save to apply.</p>
+          </div>
+        </section>
+      </div>
+
+      <div v-if="!readOnly" class="sticky bottom-4 mt-5 flex justify-end">
+        <button type="submit" :disabled="form.processing" class="admin-btn-primary shadow-lg">{{ form.processing ? 'Saving…' : 'Save banners' }}</button>
       </div>
     </form>
   </AdminLayout>
@@ -52,6 +62,7 @@ const banners = [
 ];
 
 const previews = reactive({});
+const imageOf = (b) => previews[b.image] || (props.breadcrumb?.[b.image] ? '/' + props.breadcrumb[b.image] : null);
 const form = useForm(Object.fromEntries(banners.flatMap(b => [[b.name, props.breadcrumb?.[b.name] || ''], [b.image, null]])));
 
 async function pick(field, e) {

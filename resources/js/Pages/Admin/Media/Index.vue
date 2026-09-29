@@ -9,6 +9,7 @@
       </label>
     </PageHeader>
 
+    <StickyBar>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
       <div class="admin-card a-stat">
         <p class="a-stat-label">Files</p>
@@ -29,6 +30,7 @@
         <p :class="['a-stat-value', summary.missing && 'a-text-danger']">{{ summary.missing }}</p>
       </div>
     </div>
+    </StickyBar>
 
     <p v-if="uploadError" class="a-alert a-alert-danger mb-4">{{ uploadError }}</p>
 
@@ -140,6 +142,7 @@
 </template>
 
 <script setup>
+import StickyBar from '@/Components/Admin/StickyBar.vue';
 import SelectBox from '@/Components/SelectBox.vue';
 import { confirmDialog } from '@/Composables/useConfirm';
 import { computed, ref, watch } from 'vue';

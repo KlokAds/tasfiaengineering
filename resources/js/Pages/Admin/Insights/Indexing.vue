@@ -9,6 +9,7 @@
       <Link v-if="can('analytics.connect')" href="/admin/insights/google" class="font-semibold underline">Open Google connections</Link>
     </p>
 
+    <StickyBar>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       <button v-for="c in cards" :key="c.key" type="button" @click="filter = filter === c.key ? '' : c.key"
         :class="['admin-card p-4 text-left transition', filter === c.key && 'ring-2 ring-[var(--a-accent)]']">
@@ -16,6 +17,7 @@
         <p class="mt-1 text-2xl font-extrabold tabular-nums">{{ summary[c.key] || 0 }}</p>
       </button>
     </div>
+    </StickyBar>
 
     <section class="admin-card overflow-hidden">
       <div class="p-3 border-b a-border flex flex-wrap gap-2 items-center">
@@ -56,6 +58,7 @@
 </template>
 
 <script setup>
+import StickyBar from '@/Components/Admin/StickyBar.vue';
 import SelectBox from '@/Components/SelectBox.vue';
 import { computed, ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';

@@ -28,6 +28,7 @@
       </Link>
     </div>
 
+    <StickyBar>
     <!-- KPIs -->
     <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
       <Link v-for="k in kpis" :key="k.label" :href="k.href" class="admin-card p-5 hover:border-[var(--a-border-2)] transition">
@@ -36,6 +37,7 @@
         <p class="mt-1 text-xs a-subtle">{{ k.hint }}</p>
       </Link>
     </div>
+    </StickyBar>
 
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
       <div class="xl:col-span-2 space-y-6">
@@ -174,6 +176,7 @@
 </template>
 
 <script setup>
+import StickyBar from '@/Components/Admin/StickyBar.vue';
 import { computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';

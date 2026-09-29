@@ -20,7 +20,7 @@
           <li v-for="(o, i) in filtered" :key="String(o.value) + i" :id="`${uid}-${i}`" role="option" :aria-selected="isSelected(o)"
             :class="['sbx-option', isSelected(o) && 'is-selected', i === active && 'is-active', o.disabled && 'is-disabled']"
             @mousedown.prevent="choose(o)" @mousemove="active = i">
-            <span class="truncate">{{ o.label }}</span>
+            <span class="truncate min-w-0 flex-1">{{ o.label }}</span>
             <svg v-if="isSelected(o)" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
           </li>
           <li v-if="!filtered.length" class="sbx-empty">Nothing matches “{{ q }}”</li>
@@ -94,10 +94,12 @@ function place() {
   const want = Math.min(288, 44 + options.value.length * 38);
   const up = below < Math.min(want, 200) && above > below;
   const max = Math.max(140, Math.min(want, up ? above : below));
+  // At least 8rem wide, so short fields (e.g. "Rows 25") never cut the option text.
+  const width = Math.min(Math.max(r.width, 128), window.innerWidth - 16);
   panelStyle.value = {
     position: 'fixed',
-    left: `${Math.max(8, r.left)}px`,
-    width: `${Math.min(r.width, window.innerWidth - 16)}px`,
+    left: `${Math.min(Math.max(8, r.left), window.innerWidth - width - 8)}px`,
+    width: `${width}px`,
     maxHeight: `${max}px`,
     ...(up ? { bottom: `${vh - r.top + 4}px` } : { top: `${r.bottom + 4}px` }),
   };

@@ -4,9 +4,9 @@
     and the same action buttons slides in and stays there, so actions are always one click away.
     The slim bar is zero-height in the page flow, so nothing jumps while scrolling.
   -->
-  <div v-if="$slots.default" class="sticky z-20 h-0 -mx-4 sm:-mx-6 lg:-mx-8" :style="{ top: offset + 'px' }">
+  <div v-if="$slots.default" data-page-slim class="sticky z-20 h-0 -mx-4 sm:-mx-6 lg:-mx-8" :style="{ top: offset + 'px' }">
     <transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 -translate-y-2" leave-active-class="transition duration-150 ease-in" leave-to-class="opacity-0 -translate-y-2">
-      <div v-if="stuck" class="absolute inset-x-0 top-0 px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-3 border-b a-border shadow-sm backdrop-blur-md"
+      <div v-if="stuck" class="absolute inset-x-0 top-0 h-12 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 border-b a-border shadow-sm backdrop-blur-md"
         style="background: color-mix(in srgb, var(--a-bg) 88%, transparent)">
         <p class="text-[15px] font-bold tracking-tight truncate min-w-0">{{ title }}</p>
         <div class="flex items-center gap-2 shrink-0 overflow-x-auto a-scroll page-header-compact">
