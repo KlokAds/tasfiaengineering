@@ -79,6 +79,25 @@ class SystemSettings
             : !in_array($country, $geo['countries'], true);
     }
 
+    /**
+     * Website address from admin (overrides APP_URL): sitemap, canonical tags, schema and
+     * emails then always use the real domain, and https is forced when it starts with https.
+     */
+    public static function applyUrl(): void
+    {
+        $url = rtrim((string) self::safe(fn () => SiteSetting::get('system.app_url')), '/');
+        if ($url === '' || !filter_var($url, FILTER_VALIDATE_URL)) {
+            return;
+        }
+        config(['app.url' => $url]);
+        if (!app()->runningInConsole() || app()->runningUnitTests()) {
+            \Illuminate\Support\Facades\URL::forceRootUrl($url);
+            if (str_starts_with($url, 'https://')) {
+                \Illuminate\Support\Facades\URL::forceScheme('https');
+            }
+        }
+    }
+
     /** SMTP details saved in admin (password stays encrypted until it is used). */
     public static function mail(): array
     {

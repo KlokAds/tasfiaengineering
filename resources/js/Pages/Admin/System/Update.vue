@@ -40,7 +40,8 @@
 
             <div class="mt-6 flex flex-wrap items-center gap-3">
               <button @click="check" :disabled="checking || running" class="admin-btn-secondary">{{ checking ? 'Checking…' : 'Check for updates' }}</button>
-              <button @click="connecting = false; confirmOpen = true" :disabled="running" class="admin-btn-primary">{{ running ? 'Updating…' : 'Update now' }}</button>
+              <button @click="startMigrate" :disabled="running" class="admin-btn-secondary" title="Only run new database changes (no code download)">Run migrations</button>
+              <button @click="connecting = false; mode = 'update'; confirmOpen = true" :disabled="running" class="admin-btn-primary">{{ running ? 'Updating…' : 'Update now' }}</button>
               <span v-if="checkResult?.ok" class="text-sm" :class="checkResult.behind ? 'a-text-success font-semibold' : 'a-muted'">
                 {{ checkResult.behind ? `${checkResult.behind} new change(s) available` : 'Already up to date' }}
                 <span v-if="checkResult.ahead" class="a-text-warning"> · server has {{ checkResult.ahead }} commit(s) not on GitHub</span>
@@ -69,8 +70,8 @@
           </header>
           <div class="p-5 grid md:grid-cols-[1fr_11rem] gap-4">
             <div>
-              <label class="admin-label">Repository address</label>
-              <input v-model="gh.repo_url" type="url" required class="admin-input a-mono text-xs" placeholder="https://github.com/KlokAds/tasfiaengineering" />
+              <label class="admin-label">Repository (User/Repo)</label>
+              <input v-model="gh.repo_url" type="text" required class="admin-input a-mono text-xs" placeholder="KlokAds/tasfiaengineering" />
               <p v-if="gh.errors.repo_url" class="a-error">{{ gh.errors.repo_url }}</p>
             </div>
             <div>
@@ -78,9 +79,14 @@
               <input v-model="gh.branch" type="text" required class="admin-input a-mono text-xs" placeholder="main" />
               <p v-if="gh.errors.branch" class="a-error">{{ gh.errors.branch }}</p>
             </div>
-            <div class="md:col-span-2">
+            <div>
+              <label class="admin-label">GitHub username <span class="font-normal a-subtle">(optional)</span></label>
+              <input v-model="gh.username" type="text" class="admin-input a-mono text-xs" placeholder="KlokAds" />
+              <p class="a-help">Needed only for a classic token.</p>
+            </div>
+            <div>
               <label class="admin-label flex items-center justify-between">
-                <span>Access token <span class="font-normal a-subtle">(only for a private repository)</span></span>
+                <span>Personal access token <span class="font-normal a-subtle">(only for a private repository)</span></span>
                 <button v-if="github.has_token" type="button" class="text-[11px] a-text-danger font-semibold" @click="clearToken">Remove saved token</button>
               </label>
               <input v-model="gh.token" type="password" autocomplete="new-password" class="admin-input a-mono text-xs" :placeholder="github.has_token ? '•••••••• saved (leave blank to keep)' : 'github_pat_…'" />
@@ -137,7 +143,7 @@
       </div>
     </div>
 
-    <Modal :show="confirmOpen" :title="connecting ? 'Connect to GitHub' : 'Confirm update'" :subtitle="connecting ? 'The code on this server will be replaced with the GitHub version.' : 'The live site will be updated to the latest GitHub version.'" width="xl" @close="confirmOpen = false">
+    <Modal :show="confirmOpen" :title="mode === 'connect' ? 'Connect to GitHub' : mode === 'migrate' ? 'Run migrations' : 'Confirm update'" :subtitle="mode === 'connect' ? 'The code on this server will be replaced with the GitHub version.' : mode === 'migrate' ? 'New database changes are applied. No code is downloaded.' : 'The live site will be updated to the latest GitHub version.'" width="xl" @close="confirmOpen = false">
       <form @submit.prevent="deploy" class="space-y-4">
         <div>
           <label class="admin-label">Your admin password</label>
@@ -146,7 +152,7 @@
         </div>
         <div class="flex justify-end gap-3">
           <button type="button" @click="confirmOpen = false" class="admin-btn-secondary">Cancel</button>
-          <button type="submit" :disabled="running" class="admin-btn-primary">{{ connecting ? 'Connect' : 'Update now' }}</button>
+          <button type="submit" :disabled="running" class="admin-btn-primary">{{ mode === 'connect' ? 'Connect' : mode === 'migrate' ? 'Run migrations' : 'Update now' }}</button>
         </div>
       </form>
     </Modal>
@@ -170,12 +176,24 @@ const props = defineProps({
   github: { type: Object, default: () => ({}) },
 });
 
-const gh = useForm({ repo_url: props.github.repo_url?.replace(/\.git$/, '') || '', branch: props.github.branch || 'main', token: '' });
+const gh = useForm({
+  repo_url: (props.github.repo_url || '').replace(/^https:\/\/github\.com\//, '').replace(/\.git$/, ''),
+  branch: props.github.branch || 'main',
+  username: props.github.username || '',
+  token: '',
+});
 const saveGithub = () => gh.post('/admin/system/update/github', { preserveScroll: true, onSuccess: () => { gh.token = ''; } });
 const clearToken = () => router.post('/admin/system/update/github', { repo_url: gh.repo_url, branch: gh.branch, clear_token: 1 }, { preserveScroll: true });
 const connecting = ref(false);
+const mode = ref('update');
 function startConnect() {
   connecting.value = true;
+  mode.value = 'connect';
+  confirmOpen.value = true;
+}
+function startMigrate() {
+  connecting.value = false;
+  mode.value = 'migrate';
   confirmOpen.value = true;
 }
 
@@ -234,7 +252,7 @@ async function deploy() {
   liveLog.value = { id: '…', status: 'running', output: '' };
   startPolling();
   try {
-    const { data } = await axios.post('/admin/system/update/deploy', { password: password.value, action: connecting.value ? 'connect' : 'update' });
+    const { data } = await axios.post('/admin/system/update/deploy', { password: password.value, action: mode.value });
     confirmOpen.value = false;
     password.value = '';
     await fetchLatest(data.id);

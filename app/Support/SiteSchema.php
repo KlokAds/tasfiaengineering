@@ -47,6 +47,7 @@ class SiteSchema
             'sameAs' => array_values(array_unique(array_filter([...array_values(Socials::links()), $s['google.gbp_maps_uri'] ?? null]))) ?: null,
             'hasMap' => ($s['business.gbp_url'] ?: ($s['google.gbp_maps_uri'] ?? null)) ?: null,
             'foundingDate' => preg_match('/^(19|20)\d{2}$/', (string) ($s['business.founded_year'] ?? '')) ? $s['business.founded_year'] : null,
+            'foundingDate' => preg_match('/^(19|20)\d{2}$/', (string) ($s['business.founded_year'] ?? '')) ? $s['business.founded_year'] : null,
             'identifier' => $s['business.uen'] ? ['@type' => 'PropertyValue', 'propertyID' => 'UEN', 'value' => $s['business.uen']] : null,
         ]);
 

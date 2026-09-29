@@ -41,6 +41,23 @@
         </div>
       </form>
 
+      <form @submit.prevent="saveStatus" class="admin-card overflow-hidden">
+        <header class="a-card-head">
+          <div>
+            <h3 class="a-card-title">Website address (production URL)</h3>
+            <p class="a-card-sub">The real domain. Sitemap, canonical tags, Google schema and email links always use it, even if the server's .env says something else.</p>
+          </div>
+        </header>
+        <div class="p-5 flex flex-wrap items-end gap-3">
+          <div class="flex-1 min-w-[16rem]">
+            <input v-model="statusForm.app_url" type="url" class="admin-input a-mono" :placeholder="server.app_url" />
+            <p v-if="statusForm.errors.app_url" class="a-error">{{ statusForm.errors.app_url }}</p>
+            <p v-else class="a-help">Example: <span class="a-mono">https://tasfiaengineering.com</span>. Leave empty to use APP_URL from .env. Starting with https:// also forces secure links.</p>
+          </div>
+          <button type="submit" :disabled="statusForm.processing" class="admin-btn-secondary">Save</button>
+        </div>
+      </form>
+
       <section class="admin-card overflow-hidden">
         <header class="a-card-head">
           <div>
@@ -237,6 +254,7 @@ const statusForm = useForm({
   maintenance: !!props.status.maintenance,
   maintenance_message: props.status.maintenance_message || '',
   maintenance_back: props.status.maintenance_back || '',
+  app_url: props.status.app_url || '',
 });
 async function saveStatus() {
   if (statusForm.maintenance && !props.status.maintenance) {

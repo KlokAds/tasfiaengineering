@@ -51,6 +51,7 @@ class SystemUpdateController extends Controller
                 'repo_url' => $this->repoUrl(),
                 'branch' => $this->branch(),
                 'has_token' => (bool) $this->token(),
+                'username' => SiteSetting::get('deploy.username'),
                 'can_run' => function_exists('proc_open'),
             ],
         ]);
@@ -59,13 +60,22 @@ class SystemUpdateController extends Controller
     /** Repository URL, branch and (for private repos) an access token, saved from admin. */
     public function saveGithub(Request $request)
     {
+        $short = trim((string) $request->input('repo_url'));
+        if (preg_match('#^[\w.-]+/[\w.-]+$#', $short)) {
+            $request->merge(['repo_url' => 'https://github.com/' . $short]);
+        }
         $data = $request->validate([
             'repo_url' => ['required', 'string', 'max:300', 'regex:#^https://(github\.com|gitlab\.com|bitbucket\.org)/[\w.-]+/[\w.-]+?(\.git)?/?$#'],
+            'username' => 'nullable|string|max:100',
             'branch' => ['required', 'string', 'max:100', 'regex:#^[\w./-]+$#'],
             'token' => 'nullable|string|max:300',
-        ], ['repo_url.regex' => 'Use the https address of the repository, e.g. https://github.com/KlokAds/tasfiaengineering']);
+        ], ['repo_url.regex' => 'Use User/Repo (e.g. KlokAds/tasfiaengineering) or the full https address.']);
 
-        $values = ['deploy.repo_url' => rtrim(preg_replace('#\.git$#', '', rtrim($data['repo_url'], '/')), '/') . '.git', 'deploy.branch' => $data['branch']];
+        $values = [
+            'deploy.repo_url' => rtrim(preg_replace('#\.git$#', '', rtrim($data['repo_url'], '/')), '/') . '.git',
+            'deploy.branch' => $data['branch'],
+            'deploy.username' => trim((string) ($data['username'] ?? '')),
+        ];
         if ($request->boolean('clear_token')) {
             $values['deploy.token'] = '';
         } elseif (filled($data['token'] ?? null)) {
@@ -119,7 +129,7 @@ class SystemUpdateController extends Controller
         if (!Hash::check($request->input('password'), $request->user()->password)) {
             throw ValidationException::withMessages(['password' => 'Password is incorrect.']);
         }
-        $action = $request->input('action') === 'connect' ? 'connect' : 'update';
+        $action = in_array($request->input('action'), ['connect', 'migrate'], true) ? $request->input('action') : 'update';
         if ($action === 'update' && !$this->isConnected()) {
             return response()->json(['message' => 'This folder is not connected to GitHub yet. Use "Connect to GitHub" first.'], 422);
         }
@@ -205,6 +215,13 @@ class SystemUpdateController extends Controller
         $git = config('deploy.git_binary');
         $php = $this->phpBinary();
         $production = app()->environment('production');
+
+        if ($action === 'migrate') {
+            return array_map(fn ($s) => $s + ['display' => implode(' ', array_map(fn ($p) => $p === $php ? 'php' : $p, $s['command']))], [
+                ['label' => 'Update database (migrate)', 'command' => [$php, 'artisan', 'migrate', '--force']],
+                ['label' => 'Clear caches', 'command' => [$php, 'artisan', 'optimize:clear']],
+            ]);
+        }
 
         $steps = $action === 'connect'
             ? [
@@ -325,7 +342,7 @@ class SystemUpdateController extends Controller
             $env += [
                 'GIT_CONFIG_COUNT' => '1',
                 'GIT_CONFIG_KEY_0' => "http.https://{$host}/.extraheader",
-                'GIT_CONFIG_VALUE_0' => 'AUTHORIZATION: basic ' . base64_encode('x-access-token:' . $token),
+                'GIT_CONFIG_VALUE_0' => 'AUTHORIZATION: basic ' . base64_encode((SiteSetting::get('deploy.username') ?: 'x-access-token') . ':' . $token),
             ];
         }
 

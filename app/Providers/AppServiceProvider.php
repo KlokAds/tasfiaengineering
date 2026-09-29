@@ -17,6 +17,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // SMTP details saved in Admin → System → Site settings override .env.
         \App\Support\SystemSettings::applyMail();
+        \App\Support\SystemSettings::applyUrl();
 
         Gate::before(function (User $user) {
             try {

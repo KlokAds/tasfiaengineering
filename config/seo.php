@@ -18,6 +18,7 @@ return [
                 'business.uen' => ['label' => 'UEN', 'type' => 'text', 'default' => ''],
                 'business.founded_year' => ['label' => 'Year founded', 'type' => 'text', 'default' => '', 'help' => 'Used in the footer copyright (e.g. © 2016–2026) and as foundingDate in the schema.'],
                 'business.founded_year' => ['label' => 'Year founded', 'type' => 'text', 'default' => '', 'help' => 'Used in the footer copyright (e.g. © 2016–2026) and as foundingDate in the schema.'],
+                'business.founded_year' => ['label' => 'Year founded', 'type' => 'text', 'default' => '', 'help' => 'Used in the footer copyright (e.g. © 2016–2026) and as foundingDate in the schema.'],
                 'business.schema_type' => ['label' => 'Business type (schema)', 'type' => 'select', 'default' => 'HomeAndConstructionBusiness', 'options' => [
                     'HomeAndConstructionBusiness', 'GeneralContractor', 'Plumber', 'Electrician', 'HVACBusiness', 'LocalBusiness',
                 ]],
@@ -124,6 +125,7 @@ return [
                 'deploy.repo_url' => ['type' => 'text', 'default' => ''],
                 'deploy.branch' => ['type' => 'text', 'default' => ''],
                 'deploy.token' => ['type' => 'secret', 'default' => ''],
+                'deploy.username' => ['type' => 'text', 'default' => ''],
             ],
         ],
 
@@ -136,6 +138,7 @@ return [
                 'system.maintenance_message' => ['type' => 'text', 'default' => ''],
                 'system.maintenance_back' => ['type' => 'text', 'default' => ''],
                 'system.debug_until' => ['type' => 'text', 'default' => ''],
+                'system.app_url' => ['type' => 'text', 'default' => ''],
                 'mail.enabled' => ['type' => 'toggle', 'default' => '0'],
                 'mail.host' => ['type' => 'text', 'default' => ''],
                 'mail.port' => ['type' => 'text', 'default' => '587'],
