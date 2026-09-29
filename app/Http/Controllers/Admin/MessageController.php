@@ -32,6 +32,8 @@ class MessageController extends Controller
 
         return Inertia::render('Admin/Messages/Index', [
             'messages' => $query->paginate(PerPage::get($request, 25))->withQueryString(),
+            // "Open in admin" from the email: show that enquiry straight away.
+            'openMessage' => $request->filled('open') ? Message::find($request->integer('open')) : null,
             'filters' => $request->only(['search', 'unread', 'per_page']),
         ]);
     }

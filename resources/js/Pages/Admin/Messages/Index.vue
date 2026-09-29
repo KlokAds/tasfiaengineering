@@ -87,7 +87,7 @@
 import BulkSelectAll from '@/Components/Admin/BulkSelectAll.vue';
 import BulkBar from '@/Components/Admin/BulkBar.vue';
 import { useBulk } from '@/Composables/useBulk';
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import PageHeader from '@/Components/Admin/PageHeader.vue';
@@ -95,7 +95,7 @@ import Pagination from '@/Components/Admin/Pagination.vue';
 import { confirmDialog } from '@/Composables/useConfirm';
 import { usePermissions } from '@/Composables/usePermissions';
 
-const props = defineProps({ messages: Object, filters: Object });
+const props = defineProps({ messages: Object, filters: Object, openMessage: Object });
 const { can } = usePermissions();
 
 const searchQuery = ref(props.filters?.search || '');
@@ -114,6 +114,7 @@ function setUnread(on) {
   router.get('/admin/messages', { search: searchQuery.value || undefined, unread: on ? 'true' : undefined }, { preserveState: true, replace: true });
 }
 
+onMounted(() => { if (props.openMessage) openMessage(props.messages.data.find((m) => m.id === props.openMessage.id) || props.openMessage); });
 function openMessage(msg) {
   selected.value = msg;
   if (msg.is_read == 0 && can('enquiries.edit')) {

@@ -24,24 +24,34 @@ class NewEnquiry extends Notification
         if (strlen($digits) === 8) {
             $digits = '65' . $digits;
         }
+        $open = url('/admin/messages?open=' . $m->id);
+        $buttons = array_values(array_filter([
+            $digits ? ['label' => 'Reply on WhatsApp', 'url' => 'https://wa.me/' . $digits, 'style' => 'whatsapp'] : null,
+            ['label' => 'Open in admin', 'url' => $open, 'style' => $digits ? 'secondary' : 'primary'],
+        ]));
 
-        $mail = (new MailMessage)
+        return (new MailMessage)
             ->subject('New enquiry: ' . ($m->subject ?: 'Website') . ' · ' . $m->name)
-            ->greeting('New enquiry from the website')
-            ->line("**Name:** {$m->name}")
-            ->line('**Phone:** ' . ($m->phone ?: '—'))
-            ->line("**Email:** {$m->email}")
-            ->line('**About:** ' . ($m->subject ?: 'Website enquiry'))
-            ->line('**Message:**');
-        foreach (preg_split('/\R/', trim((string) $m->message)) as $line) {
-            $mail->line($line === '' ? ' ' : $line);
-        }
-        $mail->action('Open in admin', url('/admin/messages'));
-        if ($digits) {
-            $mail->line('Reply on WhatsApp: https://wa.me/' . $digits);
-        }
-
-        return $mail->replyTo($m->email, $m->name)->salutation('Reply fast: most customers ask two or three companies.');
+            ->replyTo($m->email, $m->name)
+            ->view(['emails.notice', 'emails.notice-text'], [
+                'preheader' => \Illuminate\Support\Str::limit(trim((string) $m->message), 110),
+                'badge' => 'New enquiry',
+                'title' => $m->name . ' sent an enquiry',
+                'fields' => array_values(array_filter([
+                    ['Name', $m->name],
+                    $m->phone ? ['Phone', \App\Http\Middleware\HandleInertiaRequests::formatPhone($m->phone)[0] ?: $m->phone, 'tel:+' . $digits] : null,
+                    ['Email', $m->email, 'mailto:' . $m->email],
+                    ['About', $m->subject ?: 'Website enquiry'],
+                    ['Received', $m->created_at?->timezone(config('admin.timezone'))->format('j M Y, g:i a')],
+                ])),
+                'quoteLabel' => 'Message',
+                'quote' => trim((string) $m->message),
+                'buttons' => $buttons,
+                'after' => ['Reply fast: most customers ask two or three companies. Replying to this email answers the customer directly.'],
+                // Opening this email marks the enquiry as read in the admin (when images are shown).
+                'pixel' => \Illuminate\Support\Facades\URL::signedRoute('mail.seen', ['message' => $m->id]),
+                'footer' => 'You get this because this address receives website enquiries.',
+            ]);
     }
 
     public function toArray(object $notifiable): array

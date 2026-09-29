@@ -38,6 +38,9 @@ use Illuminate\Support\Facades\Route;
 | Public Frontend SPA Routes (Inertia.js - Without Page Reload)
 |--------------------------------------------------------------------------
 */
+// Email "opened" pixel: marks that enquiry as read (signed link, so it cannot be guessed).
+Route::get('/mail/seen/{message}', [\App\Http\Controllers\MailSeenController::class, 'show'])->middleware('signed')->name('mail.seen');
+
 // First run only (closed once a user exists): create the owner account.
 Route::get('/setup', [\App\Http\Controllers\SetupController::class, 'show'])->name('setup');
 Route::post('/setup', [\App\Http\Controllers\SetupController::class, 'store'])->middleware('throttle:10,1')->name('setup.store');

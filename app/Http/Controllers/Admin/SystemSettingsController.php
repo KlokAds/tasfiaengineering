@@ -158,10 +158,12 @@ class SystemSettingsController extends Controller
         SystemSettings::applyMail();
 
         try {
-            Mail::raw(
-                "This is a test email from your website admin.\n\nIf you can read this, enquiry and article notifications will reach you.\n\nSent by: " . config('mail.mailers.smtp.host', 'server'),
-                fn ($m) => $m->to($to)->subject('Test email from ' . (SiteSetting::get('business.brand_name') ?: config('app.name')))
-            );
+            Mail::send(['emails.notice', 'emails.notice-text'], [
+                'badge' => 'Test email',
+                'title' => 'Your email settings work',
+                'lines' => ['If you can read this, enquiry alerts and article notifications will reach you.', 'Sent through: **' . config('mail.mailers.smtp.host', 'server') . '**'],
+                'buttons' => [['label' => 'Open the admin', 'url' => url('/admin/dashboard')]],
+            ], fn ($m) => $m->to($to)->subject('Test email from ' . (SiteSetting::get('business.brand_name') ?: config('app.name'))));
         } catch (\Throwable $e) {
             Log::error('Test email failed', ['error' => $e->getMessage()]);
 

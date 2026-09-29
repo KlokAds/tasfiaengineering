@@ -35,28 +35,30 @@ class ArticleWorkflow extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $c = $this->content();
-        $mail = (new MailMessage)
-            ->subject($c['subject'] . ' · ' . self::brand())
-            ->greeting('Hi ' . strtok((string) $notifiable->name, ' ') . ',');
-
-        foreach ($c['lines'] as $line) {
-            $mail->line($line);
-        }
+        $lines = $c['lines'];
+        $quote = null;
         if ($this->note) {
-            $mail->line('**Note from ' . ($this->actor ?: 'the reviewer') . ':**');
-            foreach (preg_split('/\R+/', trim($this->note)) as $noteLine) {
-                $mail->line('_' . trim($noteLine) . '_');
-            }
+            $quote = trim($this->note);
         }
-        $mail->action($c['button'], $this->url);
-        foreach ($c['next'] as $line) {
-            $mail->line($line);
-        }
+        $after = $c['next'];
         if ($this->publicUrl && in_array($this->event, ['approved', 'published', 'revision_approved'], true)) {
-            $mail->line('Live page: ' . $this->publicUrl);
+            $after[] = 'Live page: ' . $this->publicUrl;
         }
 
-        return $mail->salutation('— ' . self::brand() . ' website admin');
+        return (new MailMessage)
+            ->subject($c['subject'] . ' · ' . self::brand())
+            ->view(['emails.notice', 'emails.notice-text'], [
+                'preheader' => $c['short'] ?? $c['subject'],
+                'badge' => 'Articles',
+                'title' => $c['subject'],
+                'greeting' => 'Hi ' . strtok((string) $notifiable->name, ' ') . ',',
+                'lines' => $lines,
+                'quoteLabel' => $quote ? 'Note from ' . ($this->actor ?: 'the reviewer') : null,
+                'quote' => $quote,
+                'buttons' => [['label' => $c['button'], 'url' => $this->url]],
+                'after' => $after,
+                'footer' => 'Sent by the ' . self::brand() . ' website admin.',
+            ]);
     }
 
     private static function brand(): string
