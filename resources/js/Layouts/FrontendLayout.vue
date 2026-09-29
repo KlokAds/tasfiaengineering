@@ -59,7 +59,7 @@
             </button>
           </div>
 
-          <div v-if="topLocations.length" class="relative" @mouseenter="openMenu('locations')" @mouseleave="closeMenuSoon">
+          <div v-if="showAreasMenu" class="relative" @mouseenter="openMenu('locations')" @mouseleave="closeMenuSoon">
             <button type="button" :class="[navClass('/locations'), 'inline-flex items-center gap-1']" :aria-expanded="open === 'locations'" aria-haspopup="true" @click="toggle('locations')">
               Locations
               <svg :class="['w-3.5 h-3.5 opacity-60 transition-transform', open === 'locations' && 'rotate-180']" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
@@ -166,9 +166,7 @@
                   <div class="max-h-[17rem] overflow-y-auto overscroll-contain pb-2">
                     <template v-for="group in mobileServiceGroups" :key="group.name">
                       <p v-if="mobileServiceGroups.length > 1" class="sticky top-0 z-[1] px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-[0.1em] s-subtle s-bg-alt">{{ group.name }}</p>
-                      <Link v-for="s in group.services" :key="s.href" :href="s.href" class="flex items-center justify-between px-4 py-2.5 text-[14.5px] s-text border-b s-border last:border-b-0" @click="mobileOpen = false">
-                        {{ s.name }} <span class="s-subtle" aria-hidden="true">›</span>
-                      </Link>
+                      <Link v-for="s in group.services" :key="s.href" :href="s.href" class="block px-4 py-2.5 text-[14.5px] s-text border-b s-border last:border-b-0 active:bg-[var(--s-surface-2)]" @click="mobileOpen = false">{{ s.name }}</Link>
                     </template>
                     <p v-if="!mobileServiceGroups.length" class="px-4 py-4 text-[14px] s-muted">No service matches “{{ mobileServiceQuery }}”.</p>
                   </div>
@@ -181,14 +179,25 @@
               </div>
             </div>
 
-            <div v-if="topLocations.length" class="rounded-xl border s-border overflow-hidden">
+            <div v-if="showAreasMenu" class="rounded-xl border s-border overflow-hidden">
               <button type="button" @click="mobileSection = mobileSection === 'locations' ? null : 'locations'" class="w-full flex items-center justify-between px-4 py-3 text-[15px] font-semibold s-heading" :aria-expanded="mobileSection === 'locations'">
                 Locations
                 <svg :class="['w-4 h-4 s-subtle transition-transform', mobileSection === 'locations' && 'rotate-180']" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
               </button>
-              <div v-if="mobileSection === 'locations'" class="border-t s-border s-bg-alt p-2 grid grid-cols-2 gap-1">
-                <Link v-for="l in topLocations" :key="l.href" :href="l.href" class="px-3 py-2 rounded-lg text-[14px] s-text" @click="mobileOpen = false">{{ l.name }}</Link>
-                <Link href="/locations" class="col-span-2 px-3 py-2 text-[14px] link" @click="mobileOpen = false">All areas →</Link>
+              <div v-if="mobileSection === 'locations'" class="border-t s-border s-bg-alt">
+                <div v-if="topLocations.length > 8" class="px-3 pt-3">
+                  <input v-model="mobileAreaQuery" type="search" class="input !py-2 !text-[14px]" :placeholder="`Find your area (${topLocations.length})`" aria-label="Find your area" />
+                </div>
+                <div class="relative">
+                  <div class="max-h-[17rem] overflow-y-auto overscroll-contain pb-2">
+                    <Link v-for="l in mobileAreas" :key="l.href" :href="l.href" class="block px-4 py-2.5 text-[14.5px] s-text border-b s-border last:border-b-0 active:bg-[var(--s-surface-2)]" @click="mobileOpen = false">{{ l.name }}</Link>
+                    <p v-if="!mobileAreas.length" class="px-4 py-4 text-[14px] s-muted">No area matches “{{ mobileAreaQuery }}”.</p>
+                  </div>
+                  <div v-if="topLocations.length > 6" class="pointer-events-none absolute inset-x-0 bottom-0 h-8" style="background: linear-gradient(to bottom, transparent, var(--s-bg-alt))"></div>
+                </div>
+                <div class="p-3 border-t s-border">
+                  <Link href="/locations" class="btn btn-secondary btn-sm w-full" @click="mobileOpen = false">All areas we serve</Link>
+                </div>
               </div>
             </div>
 
@@ -345,6 +354,9 @@ const company = computed(() => page.props.company || {});
 const meta = computed(() => page.props.meta);
 const serviceCategories = computed(() => page.props.serviceCategories || []);
 const topLocations = computed(() => page.props.topLocations || []);
+// The header menu gets an Areas dropdown once there are enough area pages to make it useful;
+// the footer always lists them (internal links for local SEO).
+const showAreasMenu = computed(() => topLocations.value.length >= 4);
 const footerTopServices = computed(() => page.props.footerTopServices || []);
 const tel = computed(() => company.value.tel || '');
 const whatsappUrl = computed(() => {
@@ -376,8 +388,13 @@ const open = ref(null);
 const mobileOpen = ref(false);
 const mobileSection = ref(null);
 const serviceCount = computed(() => serviceCategories.value.reduce((n, g) => n + g.services.length, 0));
-// Mobile menu: filter the service list by name.
+// Mobile menu: filter the service and area lists by name.
 const mobileServiceQuery = ref('');
+const mobileAreaQuery = ref('');
+const mobileAreas = computed(() => {
+  const q = mobileAreaQuery.value.trim().toLowerCase();
+  return q ? topLocations.value.filter((l) => l.name.toLowerCase().includes(q)) : topLocations.value;
+});
 const mobileServiceGroups = computed(() => {
   const q = mobileServiceQuery.value.trim().toLowerCase();
   return serviceCategories.value
