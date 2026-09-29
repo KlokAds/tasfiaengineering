@@ -4,7 +4,7 @@
     and the same action buttons slides in and stays there, so actions are always one click away.
     The slim bar is zero-height in the page flow, so nothing jumps while scrolling.
   -->
-  <div v-if="$slots.default" class="sticky top-16 z-20 h-0 -mx-4 sm:-mx-6 lg:-mx-8">
+  <div v-if="$slots.default" class="sticky z-20 h-0 -mx-4 sm:-mx-6 lg:-mx-8" :style="{ top: offset + 'px' }">
     <transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 -translate-y-2" leave-active-class="transition duration-150 ease-in" leave-to-class="opacity-0 -translate-y-2">
       <div v-if="stuck" class="absolute inset-x-0 top-0 px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-3 border-b a-border shadow-sm backdrop-blur-md"
         style="background: color-mix(in srgb, var(--a-bg) 88%, transparent)">
@@ -35,12 +35,15 @@ defineProps({ title: String, description: String });
 
 const el = ref(null);
 const stuck = ref(false);
+const offset = ref(64);
 let observer = null;
 
 onMounted(() => {
   if (!el.value || typeof IntersectionObserver === 'undefined') return;
-  // 64px = the admin top bar. The slim bar shows once the real header has passed under it.
-  observer = new IntersectionObserver(([entry]) => { stuck.value = !entry.isIntersecting && entry.boundingClientRect.top < 64; }, { rootMargin: '-64px 0px 0px 0px', threshold: 0 });
+  // Sits under the top bar (64px) and, on pages that have them, under the section tabs.
+  const tabs = document.querySelector('[data-admin-tabs]');
+  offset.value = 64 + (tabs ? Math.round(tabs.getBoundingClientRect().height) : 0);
+  observer = new IntersectionObserver(([entry]) => { stuck.value = !entry.isIntersecting && entry.boundingClientRect.top < offset.value; }, { rootMargin: `-${offset.value}px 0px 0px 0px`, threshold: 0 });
   observer.observe(el.value);
 });
 onBeforeUnmount(() => observer?.disconnect());

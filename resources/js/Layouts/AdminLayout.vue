@@ -139,7 +139,8 @@
         </div>
       </header>
 
-      <div v-if="tabs.length > 1" class="px-4 sm:px-6 border-b a-border" style="background: var(--a-panel)">
+      <!-- Section tabs stay under the top bar while scrolling -->
+      <div v-if="tabs.length > 1" data-admin-tabs class="sticky top-16 z-[25] px-4 sm:px-6 border-b a-border" style="background: var(--a-panel)">
         <nav class="a-tabs !border-0 max-w-[1400px] mx-auto">
           <Link v-for="tab in tabs" :key="tab.href" :href="tab.href" :class="['a-tab', isTabActive(tab) && 'a-tab-active']">{{ tab.label }}</Link>
         </nav>
