@@ -41,3 +41,7 @@ Thumbs.db
 /storage/app/private
 # Old copy of the frontend, not used by the build
 /resources/resources
+
+# Links to the other apps on the live server (invoice.* = Crater, billing.* = Tasfia Billing)
+/public/invoice
+/public/billing
