@@ -85,6 +85,11 @@
     <!-- ============ Editor ============ -->
     <Modal :show="modalOpen" :title="editing ? 'Edit service' : 'New service'" subtitle="Summary → facts → body → prices → FAQs. The name is the H1." width="5xl" @close="modalOpen = false">
       <form @submit.prevent="save" class="space-y-5">
+        <!-- Unsaved work was put back automatically -->
+        <div v-if="autosave.restored.value" class="rounded-xl border px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3 justify-between" style="border-color: var(--a-accent); background: var(--a-accent-soft)">
+          <p class="text-sm"><span class="font-semibold">Your unsaved changes are back</span> <span class="a-muted">(autosaved {{ new Date(autosave.restored.value.saved_at).toLocaleString('en-SG', { dateStyle: 'medium', timeStyle: 'short' }) }}). Save when you are ready.</span></p>
+          <button type="button" @click="autosave.undoRestore()" class="admin-btn-secondary a-btn-sm shrink-0">Discard changes</button>
+        </div>
         <AutosaveRestore :autosave="autosave" />
 
         <div class="grid grid-cols-1 xl:grid-cols-[1fr_20rem] gap-6">
@@ -127,7 +132,7 @@
             <SeoPanel :form="form" path-prefix="/service/" :title-fallback="form.name" :desc-fallback="form.short_summary" :editing="!!editing" :original-slug="editing?.slug" :meta-warning="metaConflict ? describe(metaConflict) : ''" />
           </div>
 
-          <aside class="space-y-4">
+          <aside class="space-y-4 a-side-sticky">
             <div class="a-section !bg-transparent space-y-3">
               <label class="flex items-center justify-between gap-3 cursor-pointer">
                 <span>

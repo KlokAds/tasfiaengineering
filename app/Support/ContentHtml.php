@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Cache;
 /**
  * Prepares stored rich text for the public site without changing what is saved:
  *  - drops inline styles, classes and fonts pasted from Word/ChatGPT (they break dark
- *    mode and the site typography),
+ *    mode and the site typography); only text alignment and the editor's photo
+ *    position and width are kept, rebuilt from fixed values,
  *  - removes scripts, event handlers and javascript: links,
  *  - turns runs of image-only paragraphs into a gallery grid,
  *  - lazy-loads images and fills a missing alt text,
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Cache;
 class ContentHtml
 {
     /** Bump when the output changes, so cached pages are rebuilt. */
-    private const VERSION = 4;
+    private const VERSION = 5;
 
     private const DROP_TAGS = ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button', 'meta', 'link'];
     private const KEEP_ATTRS = [
@@ -70,11 +71,23 @@ class ContentHtml
         // Attribute whitelist.
         foreach ($xp->query('.//*', $root) as $el) {
             /** @var DOMElement $el */
+            // Text alignment chosen in the editor survives as a fixed class, never as free CSS.
+            $align = in_array(strtolower($el->tagName), ['p', 'h2', 'h3', 'h4', 'h5', 'h6'], true)
+                && preg_match('/(?:^|;)\s*text-align\s*:\s*(center|right|justify)\s*(?:;|$)/i', $el->getAttribute('style'), $m)
+                ? strtolower($m[1]) : null;
+            $imgAlign = strtolower($el->tagName) === 'img' && in_array($el->getAttribute('data-align'), ['left', 'center', 'right'], true)
+                ? $el->getAttribute('data-align') : null;
             $allowed = array_merge(self::KEEP_ATTRS['*'], self::KEEP_ATTRS[strtolower($el->tagName)] ?? []);
             foreach (iterator_to_array($el->attributes) as $attr) {
                 if (!in_array(strtolower($attr->name), $allowed, true)) {
                     $el->removeAttribute($attr->name);
                 }
+            }
+            if ($align) {
+                $el->setAttribute('class', 'ta-' . $align);
+            }
+            if ($imgAlign && $imgAlign !== 'center') {
+                $el->setAttribute('data-align', $imgAlign);
             }
             if ($el->tagName === 'a') {
                 $href = trim($el->getAttribute('href'));
@@ -92,6 +105,17 @@ class ContentHtml
                 }
                 $el->setAttribute('loading', 'lazy');
                 $el->setAttribute('decoding', 'async');
+                // A photo resized in the editor keeps its width. The style is built here from a
+                // number only, so nothing from the stored HTML reaches the style attribute.
+                $raw = trim($el->getAttribute('width'));
+                $width = ctype_digit($raw) ? (int) $raw : 0;
+                $el->removeAttribute('height');
+                if ($width >= 40 && $width <= 2000) {
+                    $el->setAttribute('width', (string) $width);
+                    $el->setAttribute('style', "width:{$width}px");
+                } else {
+                    $el->removeAttribute('width');
+                }
                 if (trim($el->getAttribute('alt')) === '' && $altFallback !== '') {
                     $el->setAttribute('alt', $altFallback);
                 }
@@ -160,6 +184,10 @@ class ContentHtml
                     } elseif ($i > 8) {
                         $fig->setAttribute('hidden', 'hidden');
                     }
+                    // Gallery tiles are sized and placed by the grid, not by the editor.
+                    $img->removeAttribute('style');
+                    $img->removeAttribute('width');
+                    $img->removeAttribute('data-align');
                     $fig->appendChild($img);
                     $grid->appendChild($fig);
                 }

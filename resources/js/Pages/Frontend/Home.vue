@@ -12,8 +12,8 @@
       <div class="absolute -left-40 -top-40 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-20" style="background: radial-gradient(circle, #f97316, transparent 65%)"></div>
 
       <div class="relative container-app py-16 lg:py-24">
-        <div :class="['grid gap-12 items-center', hero.show_quote_form ? 'lg:grid-cols-[1.25fr_1fr]' : '']">
-          <div :class="!hero.show_quote_form && 'max-w-3xl'">
+        <div :class="['grid grid-cols-1 gap-12 items-center', hero.show_quote_form ? 'lg:grid-cols-[1.25fr_1fr]' : '']">
+          <div :class="['min-w-0', !hero.show_quote_form && 'max-w-3xl']">
             <p v-if="hero.eyebrow" class="eyebrow !text-[#fdae72]">{{ hero.eyebrow }}</p>
             <h1 class="h-display !text-white mt-4">{{ hero.title || `Renovation & repair services in Singapore` }}</h1>
             <p v-if="hero.subtitle" class="mt-5 text-[1.1rem] leading-relaxed text-white/70 max-w-2xl">{{ hero.subtitle }}</p>
@@ -33,8 +33,8 @@
             </div>
 
             <ul v-if="stats.length" class="mt-10 grid grid-cols-2 sm:grid-cols-4 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-sm divide-white/10 overflow-hidden">
-              <li v-for="(c, i) in stats" :key="c.id" :class="['flex items-center gap-3 px-4 py-4', i % 2 ? 'border-l border-white/10' : '', i > 1 ? 'border-t sm:border-t-0 border-white/10' : '', i === 2 ? 'sm:border-l' : '']">
-                <span class="shrink-0 grid place-items-center w-10 h-10 rounded-xl bg-orange-500/15 text-orange-300">
+              <li v-for="(c, i) in stats" :key="c.id" :class="['flex items-center gap-2.5 min-[360px]:gap-3 px-3 min-[360px]:px-4 py-4 min-w-0', i % 2 ? 'border-l border-white/10' : '', i > 1 ? 'border-t sm:border-t-0 border-white/10' : '', i === 2 ? 'sm:border-l' : '']">
+                <span class="shrink-0 grid place-items-center w-8 h-8 min-[360px]:w-10 min-[360px]:h-10 rounded-xl bg-orange-500/15 text-orange-300">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" :d="c.icon" /></svg>
                 </span>
                 <div class="min-w-0">
@@ -71,6 +71,8 @@
       </div>
     </section>
 
+    <!-- Everything below the first screen is built one frame later (splits the start-up work in two). -->
+    <template v-if="restReady">
     <!-- ============ Services ============ -->
     <section v-if="services.length" class="section-y s-bg-alt">
       <div class="container-app">
@@ -191,11 +193,12 @@
     </section>
 
     <CtaBand />
+    </template>
   </FrontendLayout>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import FrontendLayout from '@/Layouts/FrontendLayout.vue';
 import ServiceCard from '@/Components/Site/ServiceCard.vue';
@@ -208,6 +211,18 @@ import Stars from '@/Components/Site/Stars.vue';
 import WhatsAppButton from '@/Components/Site/WhatsAppButton.vue';
 import { img, srcset } from '@/utils/img';
 import { statsFrom } from '@/utils/stats';
+
+const restReady = ref(false);
+onMounted(() => {
+  requestAnimationFrame(() => setTimeout(async () => {
+    restReady.value = true;
+    // A link such as /#quote points into the part that was just built.
+    if (location.hash.length > 1) {
+      await nextTick();
+      document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
+    }
+  }));
+});
 
 const props = defineProps({
   hero: { type: Object, default: () => ({}) },

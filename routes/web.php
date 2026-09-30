@@ -41,6 +41,17 @@ use Illuminate\Support\Facades\Route;
 // Email "opened" pixel: marks that enquiry as read (signed link, so it cannot be guessed).
 Route::get('/mail/seen/{message}', [\App\Http\Controllers\MailSeenController::class, 'show'])->middleware('signed')->name('mail.seen');
 
+// Fresh upload only (closed for good once it has run): connect MySQL and load the website data.
+// These middlewares read the database, which is not available yet.
+$installWithout = [
+    \App\Http\Middleware\SiteAccess::class,
+    \App\Http\Middleware\UseLibraryFiles::class,
+    \App\Http\Middleware\PublishScheduledArticles::class,
+    \App\Http\Middleware\HandleInertiaRequests::class,
+];
+Route::get('/install', [\App\Http\Controllers\InstallController::class, 'show'])->withoutMiddleware($installWithout)->name('install');
+Route::post('/install', [\App\Http\Controllers\InstallController::class, 'store'])->withoutMiddleware($installWithout)->middleware('throttle:10,1')->name('install.store');
+
 // First run only (closed once a user exists): create the owner account.
 Route::get('/setup', [\App\Http\Controllers\SetupController::class, 'show'])->name('setup');
 Route::post('/setup', [\App\Http\Controllers\SetupController::class, 'store'])->middleware('throttle:10,1')->name('setup.store');
@@ -57,7 +68,19 @@ Route::permanentRedirect('/articles', '/blogs');
 Route::get('/search', [\App\Http\Controllers\SearchController::class, 'index'])->middleware('throttle:60,1')->name('search');
 Route::get('/search/suggest', [\App\Http\Controllers\SearchController::class, 'suggest'])->middleware('throttle:120,1')->name('search.suggest');
 Route::get('/cache/img/{width}/{path}', [\App\Http\Controllers\ImageController::class, 'show'])
-    ->whereNumber('width')->where('path', '.*')->middleware('throttle:300,1')->name('image.resized');
+    ->whereNumber('width')->where('path', '.*')->middleware('throttle:300,1')->name('image.resized')
+    // An image needs no session or cookies, and a response with cookies is never kept by the CDN.
+    ->withoutMiddleware([
+        \Illuminate\Cookie\Middleware\EncryptCookies::class,
+        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class,
+        \App\Http\Middleware\SiteAccess::class,
+        \App\Http\Middleware\UseLibraryFiles::class,
+        \App\Http\Middleware\PublishScheduledArticles::class,
+        \App\Http\Middleware\HandleInertiaRequests::class,
+    ]);
 Route::get('/projects', [FrontendController::class, 'projects'])->name('projects');
 Route::get('/blogs', [FrontendController::class, 'blogs'])->name('blogs');
 Route::get('/blogs/{slug}', [FrontendController::class, 'blogDetail'])->name('blog.detail');
@@ -95,6 +118,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login.submit');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::get('/forgot-password', [\App\Http\Controllers\Admin\PasswordResetController::class, 'showRequest'])->name('password.request');
+    Route::post('/forgot-password', [\App\Http\Controllers\Admin\PasswordResetController::class, 'sendLink'])->middleware('throttle:5,1')->name('password.email');
+    Route::get('/reset-password/{token}', [\App\Http\Controllers\Admin\PasswordResetController::class, 'showReset'])->middleware('throttle:20,1')->name('password.reset');
+    Route::post('/reset-password', [\App\Http\Controllers\Admin\PasswordResetController::class, 'reset'])->middleware('throttle:5,1')->name('password.update');
 });
 
 /*

@@ -60,7 +60,7 @@
             <script>window.__trackEvents = true;</script>
         @endif
         @if ($tawkId)
-            {{-- Tawk.to chat loads after the first interaction (or 6 s) so it never slows the page. --}}
+            {{-- Tawk.to chat loads after the first interaction (or 10 s) so it never slows the page. --}}
             <script>
                 (function () {
                     var done = false;
@@ -74,12 +74,12 @@
                         document.head.appendChild(s);
                     }
                     ['scroll', 'pointerdown', 'keydown', 'touchstart'].forEach(function (e) { addEventListener(e, load, { once: true, passive: true }); });
-                    addEventListener('load', function () { setTimeout(load, 6000); });
+                    addEventListener('load', function () { setTimeout(load, 10000); });
                 })();
             </script>
         @endif
         @if ($gtmId || $ga4Id)
-            {{-- Tracking (GTM/GA4 and the pixels inside GTM) loads on the first scroll, tap or key press, or after 4 seconds.
+            {{-- Tracking (GTM/GA4 and the pixels inside GTM) loads on the first scroll, tap or key press, or after 10 seconds.
                  Visits are still counted; the page just paints first, which keeps PageSpeed scores high. --}}
             <script>
                 (function () {
@@ -100,7 +100,7 @@
                         document.head.appendChild(s);
                     }
                     ['scroll', 'pointerdown', 'keydown', 'touchstart'].forEach(function (e) { addEventListener(e, load, { once: true, passive: true }); });
-                    addEventListener('load', function () { setTimeout(load, 4000); });
+                    addEventListener('load', function () { setTimeout(load, 10000); });
                 })();
             </script>
         @endif
@@ -122,7 +122,13 @@
     <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-    @vite([$isPublicPage ? 'resources/css/app.css' : 'resources/css/admin-app.css', 'resources/js/app.js'])
+    @if ($isPublicPage)
+        {{-- Start downloading the two text fonts with the page, so text never shifts when they arrive. --}}
+        <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ Vite::asset('node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') }}">
+        <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ Vite::asset('node_modules/@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-normal.woff2') }}">
+    @endif
+    {{-- The current page's own code is preloaded too, instead of waiting for app.js to ask for it. --}}
+    @vite([$isPublicPage ? 'resources/css/app.css' : 'resources/css/admin-app.css', 'resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
     @inertiaHead
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col">

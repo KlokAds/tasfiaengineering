@@ -421,3 +421,30 @@
     .admin-ui .a-prose table { width: 100%; border-collapse: collapse; }
     .admin-ui .a-prose td, .admin-ui .a-prose th { border: 1px solid var(--a-border); padding: 0.35rem 0.5rem; }
 }
+
+/* Side panels in editors stay in view while the main column scrolls.
+   Inside a modal they stick to the top of the modal body; on a page, below the admin header.
+   A panel taller than the screen scrolls on its own. */
+@media (min-width: 1280px) {
+    .admin-ui .a-side-sticky {
+        position: sticky;
+        top: var(--a-sticky-top, 0px);
+        align-self: start;
+        max-height: calc(100vh - var(--a-sticky-room, 14rem));
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        padding-right: 2px;
+    }
+    .admin-ui .a-side-sticky-page {
+        --a-sticky-top: 5.5rem;
+        --a-sticky-room: 7rem;
+    }
+}
+@media (min-width: 768px) {
+    .admin-ui .a-side-sticky-md {
+        position: sticky;
+        top: 0;
+        align-self: start;
+    }
+}
