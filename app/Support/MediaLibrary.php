@@ -166,6 +166,7 @@ class MediaLibrary
         }
 
         @unlink($full);
+        \App\Http\Controllers\ImageController::purge($path);
         Media::where('path', $path)->delete();
         self::flush();
 
@@ -325,6 +326,7 @@ class MediaLibrary
                 }
             } else {
                 rename($full, public_path($target));
+                \App\Http\Controllers\ImageController::purge($path);
                 self::rewrite($path, $target);
                 Media::where('path', $path)->update(['path' => $target]);
             }

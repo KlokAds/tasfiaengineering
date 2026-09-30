@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\File;
-
 /**
  * Responsive WebP copies of uploaded images: /cache/img/{width}/{path}.webp
  *
@@ -40,6 +38,21 @@ class ImageController extends Controller
             'Content-Type' => 'image/webp',
             'Cache-Control' => 'public, max-age=31536000, immutable',
         ]);
+    }
+
+    /** Remove every resized copy of an image (after it is deleted or moved), so an old copy is never served again. */
+    public static function purge(string $path): void
+    {
+        $path = ltrim(str_replace('\\', '/', $path), '/');
+        if ($path === '' || str_contains($path, '..')) {
+            return;
+        }
+        foreach (self::WIDTHS as $w) {
+            $file = public_path("cache/img/{$w}/{$path}.webp");
+            if (is_file($file)) {
+                @unlink($file);
+            }
+        }
     }
 
     private function build(string $source, string $target, int $width): bool
@@ -79,11 +92,32 @@ class ImageController extends Controller
         imagesavealpha($out, true);
         imagecopyresampled($out, $img, 0, 0, 0, 0, $newW, $newH, $w, $h);
 
-        File::ensureDirectoryExists(dirname($target));
-        $ok = imagewebp($out, $target, 78);
+        // Two first requests for images in a new folder can arrive together: a folder that
+        // appeared meanwhile is fine, and the file is written under a temporary name first,
+        // so nobody is ever served a half-written image.
+        $dir = dirname($target);
+        if (!is_dir($dir) && !@mkdir($dir, 0755, true) && !is_dir($dir)) {
+            imagedestroy($img);
+            imagedestroy($out);
+
+            return false;
+        }
+        $tmp = $target . '.' . bin2hex(random_bytes(4)) . '.tmp';
+        $ok = imagewebp($out, $tmp, 78);
         imagedestroy($img);
         imagedestroy($out);
+        if (!$ok) {
+            @unlink($tmp);
 
-        return $ok;
+            return false;
+        }
+        if (!@rename($tmp, $target)) {
+            // Another request finished the same file first (Windows will not replace it).
+            @unlink($tmp);
+
+            return is_file($target);
+        }
+
+        return true;
     }
 }
