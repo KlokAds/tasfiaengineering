@@ -17,10 +17,6 @@ return [
                 'business.alternate_name' => ['label' => 'Alternate name', 'type' => 'text', 'default' => '', 'help' => 'Other name customers search for. Shown by Google as site name alternative.'],
                 'business.uen' => ['label' => 'UEN', 'type' => 'text', 'default' => ''],
                 'business.founded_year' => ['label' => 'Year founded', 'type' => 'text', 'default' => '', 'help' => 'Used in the footer copyright (e.g. © 2016–2026) and as foundingDate in the schema.'],
-                'business.founded_year' => ['label' => 'Year founded', 'type' => 'text', 'default' => '', 'help' => 'Used in the footer copyright (e.g. © 2016–2026) and as foundingDate in the schema.'],
-                'business.founded_year' => ['label' => 'Year founded', 'type' => 'text', 'default' => '', 'help' => 'Used in the footer copyright (e.g. © 2016–2026) and as foundingDate in the schema.'],
-                'business.founded_year' => ['label' => 'Year founded', 'type' => 'text', 'default' => '', 'help' => 'Used in the footer copyright (e.g. © 2016–2026) and as foundingDate in the schema.'],
-                'business.founded_year' => ['label' => 'Year founded', 'type' => 'text', 'default' => '', 'help' => 'Used in the footer copyright (e.g. © 2016–2026) and as foundingDate in the schema.'],
                 'business.schema_type' => ['label' => 'Business type (schema)', 'type' => 'select', 'default' => 'HomeAndConstructionBusiness', 'options' => [
                     'HomeAndConstructionBusiness', 'GeneralContractor', 'Plumber', 'Electrician', 'HVACBusiness', 'LocalBusiness',
                 ]],
