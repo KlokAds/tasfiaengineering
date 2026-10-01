@@ -7,7 +7,7 @@
       <h3 class="h-card !text-[15px] sm:!text-[17px] group-hover:text-[var(--s-accent-text)] transition-colors">{{ service.name }}</h3>
       <p v-if="service.short_summary" class="mt-1.5 sm:mt-2 text-[13px] sm:text-[13.5px] s-muted line-clamp-2 leading-relaxed">{{ service.short_summary }}</p>
       <div class="mt-auto pt-2.5 sm:pt-4 flex items-center justify-between gap-3">
-        <span v-if="service.from_price" class="badge-price"><span class="text-[11px] font-medium s-subtle">from</span> S${{ Number(service.from_price).toLocaleString() }}</span>
+        <span v-if="service.from_price" class="badge-price"><span class="text-[11px] font-medium s-subtle">from</span> S${{ groupDigits(service.from_price) }}</span>
         <span v-else-if="service.response_time" class="text-xs s-subtle">{{ service.response_time }}</span>
         <span v-else></span>
         <span class="text-[13px] font-semibold s-accent inline-flex items-center gap-1 group-hover:gap-2 transition-all">
@@ -20,6 +20,7 @@
 </template>
 
 <script setup>
+import { groupDigits } from '@/utils/fmt';
 import { Link } from '@inertiajs/vue3';
 import { img, srcset } from '@/utils/img';
 
