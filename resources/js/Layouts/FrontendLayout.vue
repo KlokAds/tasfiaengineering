@@ -304,8 +304,7 @@
 
     <!-- WhatsApp -->
     <a v-if="company.whatsapp" :href="whatsappUrl" target="_blank" rel="noopener" aria-label="Chat on WhatsApp"
-      :class="company.chat ? 'left-5' : 'right-5'"
-      class="hidden lg:flex fixed z-40 bottom-5 w-14 h-14 rounded-full bg-[#16a34a] hover:bg-[#15803d] text-white flex items-center justify-center shadow-[0_10px_30px_-6px_rgba(22,163,74,0.6)] transition">
+      class="right-5 hidden lg:flex fixed z-40 bottom-5 w-14 h-14 rounded-full bg-[#16a34a] hover:bg-[#15803d] text-white flex items-center justify-center shadow-[0_10px_30px_-6px_rgba(22,163,74,0.6)] transition">
       <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path :d="icons.whatsapp" /></svg>
     </a>
 
