@@ -28,7 +28,7 @@
       <nav class="flex-1 overflow-y-auto a-scroll px-3 py-3 space-y-5">
         <div v-for="group in visibleGroups" :key="group.label">
           <p class="a-nav-label">{{ group.label }}</p>
-          <Link v-for="item in group.items" :key="item.label" :href="item.href" @click="sidebarOpen = false"
+          <Link v-for="item in group.items" :key="item.label" :href="item.href" prefetch cache-for="10s" @click="sidebarOpen = false"
             :class="['a-nav-item', isActive(item) && 'is-active']">
             <span class="flex items-center gap-2.5 min-w-0">
               <svg class="w-[17px] h-[17px] shrink-0 opacity-70" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" :d="icons[item.icon]" /></svg>
@@ -145,7 +145,7 @@
       <!-- Section tabs stay under the top bar while scrolling -->
       <div v-if="tabs.length > 1" data-admin-tabs class="sticky top-16 z-[25] px-4 sm:px-6 border-b a-border" style="background: var(--a-panel)">
         <nav class="a-tabs !border-0 max-w-[1400px] mx-auto">
-          <Link v-for="tab in tabs" :key="tab.href" :href="tab.href" :class="['a-tab', isTabActive(tab) && 'a-tab-active']">{{ tab.label }}</Link>
+          <Link v-for="tab in tabs" :key="tab.href" :href="tab.href" prefetch cache-for="10s" :class="['a-tab', isTabActive(tab) && 'a-tab-active']">{{ tab.label }}</Link>
         </nav>
       </div>
 
