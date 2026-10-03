@@ -55,6 +55,12 @@ return [
         ],
     ],
 
+    // Byline on articles that have no author of their own and no default author: the team.
+    'team_byline' => [
+        'title' => 'Renovation & repair specialists, Singapore',
+        'bio' => 'Written by the :brand team. We carry out renovation and repair works for homes and businesses across Singapore, and our guides come from the jobs we do on site.',
+    ],
+
     'roles' => [
         'super-admin' => ['label' => 'Super Admin', 'description' => 'Owner. Everything, including publishing, users and system updates.'],
         'admin' => ['label' => 'Admin', 'description' => 'Runs the site day to day. Articles go for approval unless the role is given "Publish & approve". Cannot manage the team or update the system.'],
