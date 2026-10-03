@@ -45,3 +45,4 @@ Thumbs.db
 # Links to the other apps on the live server (invoice.* = Crater, billing.* = Tasfia Billing)
 /public/invoice
 /public/billing
+/public/images
