@@ -187,7 +187,7 @@
               </button>
               <div v-if="mobileSection === 'locations'" class="border-t s-border s-bg-alt">
                 <div v-if="topLocations.length > 8" class="px-3 pt-3">
-                  <input v-model="mobileAreaQuery" type="search" class="input !py-2 !text-[14px]" :placeholder="`Find your area (${topLocations.length})`" aria-label="Find your area" />
+                  <input v-model="mobileAreaQuery" type="search" class="input !py-2 !text-[14px]" :placeholder="`Find your area (${allLocations.length})`" aria-label="Find your area" />
                 </div>
                 <div class="relative">
                   <div class="max-h-[17rem] overflow-y-auto overscroll-contain pb-2">
@@ -285,12 +285,7 @@
           </div>
         </div>
 
-        <div v-if="topLocations.length" class="mt-12 pt-8 border-t border-white/10">
-          <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-white/60 mb-3">Areas we serve</p>
-          <div class="flex flex-wrap gap-x-4 gap-y-2 text-[13px] text-white/60">
-            <Link v-for="l in topLocations" :key="l.href" :href="l.href" class="hover:text-white">{{ l.name }}</Link>
-          </div>
-        </div>
+        <FooterAreas :areas="allLocations" />
 
         <div class="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between gap-3 text-[12.5px] text-white/60">
           <p>{{ company.copyright }}</p>
@@ -348,6 +343,7 @@ import { Head, Link, usePage } from '@inertiajs/vue3';
 import Lightbox from '@/Components/Site/Lightbox.vue';
 import SearchOverlay from '@/Components/Site/SearchOverlay.vue';
 import WhatsAppButton from '@/Components/Site/WhatsAppButton.vue';
+import FooterAreas from '@/Components/Site/FooterAreas.vue';
 import { img } from '@/utils/img';
 
 const page = usePage();
@@ -355,6 +351,8 @@ const company = computed(() => page.props.company || {});
 const meta = computed(() => page.props.meta);
 const serviceCategories = computed(() => page.props.serviceCategories || []);
 const topLocations = computed(() => page.props.topLocations || []);
+// Every area (footer and the phone menu search); the desktop menu shows the main ones (topLocations).
+const allLocations = computed(() => (page.props.allLocations?.length ? page.props.allLocations : topLocations.value));
 // The header menu gets an Areas dropdown once there are enough area pages to make it useful;
 // the footer always lists them (internal links for local SEO).
 const showAreasMenu = computed(() => topLocations.value.length >= 4);
@@ -396,7 +394,7 @@ const mobileServiceQuery = ref('');
 const mobileAreaQuery = ref('');
 const mobileAreas = computed(() => {
   const q = mobileAreaQuery.value.trim().toLowerCase();
-  return q ? topLocations.value.filter((l) => l.name.toLowerCase().includes(q)) : topLocations.value;
+  return q ? allLocations.value.filter((l) => l.name.toLowerCase().includes(q)) : allLocations.value;
 });
 const mobileServiceGroups = computed(() => {
   const q = mobileServiceQuery.value.trim().toLowerCase();
