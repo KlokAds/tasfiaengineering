@@ -77,6 +77,20 @@ return [
         'batch_size' => 50,        // approved decisions run per "Run batch" (App\Support\AuditBatch)
     ],
 
+    // Area pages (Admin → Locations, `php artisan locations:towns`): this site's trade, in plain words.
+    'location_pages' => [
+        'title' => 'Renovation contractor',
+        'brand' => 'Tasfia Engineering',
+        'short' => 'renovation, hacking and tiling, bathrooms, cabinets, painting and electrical works',
+        'work' => [
+            'hdb' => 'In HDB flats we renovate bathrooms and kitchens, hack and re-tile floors and walls, build and renovate cabinets, and repaint and rewire.',
+            'condo' => 'In condominiums we restore bathrooms, renovate cabinets and wardrobes, polish and varnish, paint and update the lighting.',
+            'landed' => 'For landed homes we carry out hacking and tiling, plastering and painting, electrical and lighting works, and dismantling and disposal.',
+            'commercial' => 'For shops, offices and factories we handle renovation, dismantling and disposal, tiling, painting and electrical works.',
+        ],
+        'quote' => 'Send us photos and a short note of the job through the form on this page or on WhatsApp. We reply with a price and the earliest time we can come.',
+    ],
+
     // Byline on articles that have no author of their own and no default author: the team.
     'team_byline' => [
         'title' => 'Renovation & repair specialists, Singapore',
