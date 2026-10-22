@@ -89,7 +89,7 @@
           <button type="button" @click="searchOpen = true" class="btn btn-ghost btn-sm !px-2.5" aria-label="Search the website" title="Search (Ctrl K)">
             <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M21 21l-5.2-5.2M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" /></svg>
           </button>
-          <a v-if="company.tel" :href="'tel:' + tel" class="hidden sm:inline-flex btn btn-ghost btn-sm !px-2.5" :aria-label="'Call ' + company.phone" :title="company.phone">
+          <a v-if="company.tel" :href="'tel:' + tel" class="hidden sm:inline-flex btn btn-sm !px-2.5 bg-[var(--s-accent-soft)] s-accent s-icon-ring transition-colors hover:bg-[var(--s-accent)] hover:text-white" :aria-label="'Call ' + company.phone" :title="company.phone">
             <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" :d="icons.phone" /></svg>
           </a>
           <WhatsAppButton size="sm" class="hidden sm:inline-flex">Get a free quote</WhatsAppButton>
