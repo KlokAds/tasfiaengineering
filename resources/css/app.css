@@ -4,8 +4,8 @@
  * The admin has its own entry: resources/css/admin-app.css.
  */
 @import 'tailwindcss' source(none);
-@import '@fontsource-variable/inter/wght.css';
-@import '@fontsource-variable/plus-jakarta-sans/wght.css';
+@import '@fontsource-variable/work-sans/wght.css';
+@import '@fontsource-variable/fraunces/wght.css';
 @import './tokens.css';
 @import './site.css';
 @import './selectbox.css';
