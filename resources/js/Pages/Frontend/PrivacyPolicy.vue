@@ -40,7 +40,16 @@
             <li>Ask us to delete your data</li>
           </ul>
 
-          <h2>6. Contact us</h2>
+          <h2>6. Google account data</h2>
+          <p>Our own billing system can connect to Tasfia's own Google account so that we can publish our work. With the account owner's permission it uses:</p>
+          <ul>
+            <li><strong>YouTube</strong> (youtube.upload, youtube.readonly): to read our channel name and upload our job videos to our own YouTube channel.</li>
+            <li><strong>Google Business Profile</strong> (business.manage): to read our business locations and post updates to our own Business Profile.</li>
+          </ul>
+          <p>We use this data only for these purposes. We do not sell it, use it for advertising or share it with anyone. The access tokens are stored encrypted and only our own staff can use them. Access can be removed at any time with the Disconnect button in our system or in the Google Account under Security, Third-party access; the stored tokens are then deleted.</p>
+          <p>Our use of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+
+          <h2>7. Contact us</h2>
           <p>For questions about this policy or to use your rights, contact our data protection contact:</p>
           <p>
             <strong>{{ company.legal_name || company.name }}</strong><br />
@@ -62,5 +71,5 @@ import PageHero from '@/Components/Site/PageHero.vue';
 
 const company = computed(() => usePage().props.company || {});
 // Change this date whenever the policy text changes.
-const updated = '30 September 2026';
+const updated = '30 October 2026';
 </script>
