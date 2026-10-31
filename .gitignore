@@ -46,3 +46,6 @@ Thumbs.db
 /public/invoice
 /public/billing
 /public/images
+
+# Article rewrites waiting to be imported for review
+/storage/rewrites
