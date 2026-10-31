@@ -1,75 +1,71 @@
 <template>
-  <FrontendLayout>
-    <PageHero title="Privacy policy" eyebrow="Legal" lead="How we collect, use and protect your personal data under Singapore's Personal Data Protection Act (PDPA) 2012." :crumbs="[{ label: 'Privacy policy' }]" />
+  <LegalPage title="Privacy policy" lead="How we collect, use and protect your personal data under Singapore's Personal Data Protection Act (PDPA) 2012." :updated="updated" :sections="sections"
+    contact-title="Contact us" :other="{ label: 'Terms of service', href: '/terms-of-service' }">
+    <template #collect>
+      <p>When you use our website or contact us about our services, we may collect:</p>
+      <ul>
+        <li><strong>Personal information:</strong> your name, email address, phone number and address when you send a contact or quote form.</li>
+        <li><strong>Job details:</strong> what you need done, photos you send and where the property is.</li>
+        <li><strong>Usage data:</strong> browser type, pages visited, time on site and the referring page, for analytics.</li>
+        <li><strong>Cookies:</strong> essential cookies that make the website work, and analytics cookies if analytics is switched on.</li>
+      </ul>
+    </template>
 
-    <section class="section-y s-bg">
-      <div class="container-app max-w-3xl">
-        <article class="prose-site">
-          <p class="s-subtle text-[14px]">Last updated: {{ updated }}</p>
+    <template #use>
+      <ul>
+        <li>To answer your enquiry and send you a quotation</li>
+        <li>To arrange site visits and manage your job</li>
+        <li>To send important updates about work we are doing for you</li>
+        <li>To improve our website and services</li>
+        <li>To meet our legal obligations in Singapore</li>
+      </ul>
+    </template>
 
-          <h2>1. Information we collect</h2>
-          <p>When you use our website or contact us about our services, we may collect:</p>
-          <ul>
-            <li><strong>Personal information:</strong> your name, email address, phone number and address when you send a contact or quote form.</li>
-            <li><strong>Job details:</strong> what you need done, photos you send and where the property is.</li>
-            <li><strong>Usage data:</strong> browser type, pages visited, time on site and the referring page, for analytics.</li>
-            <li><strong>Cookies:</strong> essential cookies that make the website work, and analytics cookies if analytics is switched on.</li>
-          </ul>
+    <template #protect>
+      <p>We use industry-standard security to protect your personal data. It is stored securely and only people who need it to do their job can see it. We comply with the PDPA 2012.</p>
+    </template>
 
-          <h2>2. How we use your information</h2>
-          <ul>
-            <li>To answer your enquiry and send you a quotation</li>
-            <li>To arrange site visits and manage your job</li>
-            <li>To send important updates about work we are doing for you</li>
-            <li>To improve our website and services</li>
-            <li>To meet our legal obligations in Singapore</li>
-          </ul>
+    <template #sharing>
+      <p>We do not sell, trade or rent your personal data. We only share it when needed to carry out your job (for example with a subcontractor working on your property) or when the law requires it.</p>
+    </template>
 
-          <h2>3. How we protect it</h2>
-          <p>We use industry-standard security to protect your personal data. It is stored securely and only people who need it to do their job can see it. We comply with the PDPA 2012.</p>
+    <template #rights>
+      <p>Under the PDPA you may:</p>
+      <ul>
+        <li>Ask to see the personal data we hold about you</li>
+        <li>Ask us to correct data that is wrong</li>
+        <li>Withdraw your consent to us using your data</li>
+        <li>Ask us to delete your data</li>
+      </ul>
+    </template>
 
-          <h2>4. Sharing</h2>
-          <p>We do not sell, trade or rent your personal data. We only share it when needed to carry out your job (for example with a subcontractor working on your property) or when the law requires it.</p>
+    <template #google>
+      <p>Our own billing system can connect to Tasfia's own Google account so that we can publish our work. With the account owner's permission it uses:</p>
+      <ul>
+        <li><strong>YouTube</strong> (youtube.upload, youtube.readonly): to read our channel name and upload our job videos to our own YouTube channel.</li>
+        <li><strong>Google Business Profile</strong> (business.manage): to read our business locations and post updates to our own Business Profile.</li>
+      </ul>
+      <p>We use this data only for these purposes. We do not sell it, use it for advertising or share it with anyone. The access tokens are stored encrypted and only our own staff can use them. Access can be removed at any time with the Disconnect button in our system or in the Google Account under Security, Third-party access; the stored tokens are then deleted.</p>
+      <p>Our use of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+    </template>
 
-          <h2>5. Your rights</h2>
-          <p>Under the PDPA you may:</p>
-          <ul>
-            <li>Ask to see the personal data we hold about you</li>
-            <li>Ask us to correct data that is wrong</li>
-            <li>Withdraw your consent to us using your data</li>
-            <li>Ask us to delete your data</li>
-          </ul>
-
-          <h2>6. Google account data</h2>
-          <p>Our own billing system can connect to Tasfia's own Google account so that we can publish our work. With the account owner's permission it uses:</p>
-          <ul>
-            <li><strong>YouTube</strong> (youtube.upload, youtube.readonly): to read our channel name and upload our job videos to our own YouTube channel.</li>
-            <li><strong>Google Business Profile</strong> (business.manage): to read our business locations and post updates to our own Business Profile.</li>
-          </ul>
-          <p>We use this data only for these purposes. We do not sell it, use it for advertising or share it with anyone. The access tokens are stored encrypted and only our own staff can use them. Access can be removed at any time with the Disconnect button in our system or in the Google Account under Security, Third-party access; the stored tokens are then deleted.</p>
-          <p>Our use of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
-
-          <h2>7. Contact us</h2>
-          <p>For questions about this policy or to use your rights, contact our data protection contact:</p>
-          <p>
-            <strong>{{ company.legal_name || company.name }}</strong><br />
-            <template v-if="company.address">{{ company.address }}<br /></template>
-            <template v-if="company.email">Email: <a :href="'mailto:' + company.email">{{ company.email }}</a><br /></template>
-            <template v-if="company.phone">Phone: <a :href="'tel:' + company.phone">{{ company.phone }}</a></template>
-          </p>
-        </article>
-      </div>
-    </section>
-  </FrontendLayout>
+    <template #contact>
+      <p>For questions about this policy or to use your rights, contact our data protection contact:</p>
+    </template>
+  </LegalPage>
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { usePage } from '@inertiajs/vue3';
-import FrontendLayout from '@/Layouts/FrontendLayout.vue';
-import PageHero from '@/Components/Site/PageHero.vue';
+import LegalPage from '@/Components/Site/LegalPage.vue';
 
-const company = computed(() => usePage().props.company || {});
 // Change this date whenever the policy text changes.
 const updated = '30 October 2026';
+const sections = [
+  { id: 'collect', title: 'Information we collect' },
+  { id: 'use', title: 'How we use your information' },
+  { id: 'protect', title: 'How we protect it' },
+  { id: 'sharing', title: 'Sharing' },
+  { id: 'rights', title: 'Your rights' },
+  { id: 'google', title: 'Google account data' },
+];
 </script>
